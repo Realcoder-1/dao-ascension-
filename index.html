@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#080810"/>
+<title>Dao Ascension</title>
+<style>
+:root{
+  --bg:#080810;--surface:#0f0f1a;--surface2:#161625;--surface3:#1e1e32;--surface4:#26263e;
+  --border:#232338;--border2:#323254;
+  --text:#ede8dc;--text2:#a09888;--text3:#6a6480;--text4:#3e3a52;
+  --gold:#c8a040;--gold2:#f0c060;--gold3:#fde080;
+  --jade:#3a9a7a;--jade2:#50c89a;--jade3:#70e8ba;
+  --scarlet:#a02840;--scarlet2:#d04060;
+  --azure:#2850a0;--azure2:#4878d0;
+  --indigo:#4030a0;--indigo2:#6858d8;
+  --qi:#5080ff;--qi-glow:rgba(80,128,255,0.3);
+  --font-serif:'Georgia','Times New Roman',serif;
+  --font-ui:system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  --font-mono:'Courier New',monospace;
+  --r:8px;--r2:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-ui);}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+#root{height:100dvh;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;background:var(--bg);}
+
+/* SCROLLABLE */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+.scroll::-webkit-scrollbar{width:2px;}
+.scroll::-webkit-scrollbar-thumb{background:var(--border2);}
+
+/* TOP STRIP */
+.top{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 12px 8px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:10;}
+.avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--surface4),var(--surface3));border:2px solid var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;position:relative;}
+.avatar::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;animation:aura 2.4s ease-in-out infinite;}
+@keyframes aura{0%,100%{border-color:transparent;}50%{border-color:var(--qi);box-shadow:0 0 10px var(--qi-glow);}}
+.profile-info{flex:1;min-width:0;}
+.p-name{font-weight:700;font-size:13px;font-family:var(--font-serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.p-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.p-res{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.res-row{display:flex;align-items:center;gap:3px;font-size:11px;}
+.res-val{font-weight:700;color:var(--gold);font-family:var(--font-mono);}
+.res-lbl{color:var(--text3);font-size:10px;}
+
+/* QI BAR */
+.qi-bar-wrap{background:var(--surface);padding:5px 12px 7px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.qi-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px;font-family:var(--font-mono);}
+.qi-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.qi-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.qi-pips{display:flex;gap:2px;margin-top:3px;}
+.qi-pip{flex:1;height:2px;border-radius:1px;background:var(--surface4);transition:background .3s;}
+.qi-pip.on{background:var(--qi);box-shadow:0 0 4px var(--qi-glow);}
+.qi-pip.now{background:var(--gold);}
+
+/* SECTION LABEL */
+.slabel{padding:14px 14px 6px;font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);}
+
+/* LIST ROW */
+.row{width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px;background:transparent;border:none;border-bottom:1px solid var(--border);cursor:pointer;text-align:left;color:var(--text);transition:background .12s;}
+.row:active{background:var(--surface2);}
+.row.sel{background:rgba(80,128,255,.07);border-left:2px solid var(--qi);padding-left:12px;}
+.row.gold{background:rgba(200,160,64,.07);border-left:2px solid var(--gold);padding-left:12px;}
+.row.jade{background:rgba(58,154,122,.06);border-left:2px solid var(--jade2);padding-left:12px;}
+.row.red{background:rgba(160,40,64,.06);border-left:2px solid var(--scarlet);padding-left:12px;}
+.row.dim{opacity:.5;}
+.row-ico{width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.row-txt{flex:1;min-width:0;}
+.row-title{font-size:13px;font-weight:600;line-height:1.3;}
+.row-sub{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.35;}
+.row-val{font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap;margin-left:6px;font-family:var(--font-mono);}
+.row-arr{color:var(--text3);font-size:14px;flex-shrink:0;}
+
+/* BOTTOM BAR */
+.bottom{background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+.adv-btn{width:100%;padding:13px;font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--surface3),var(--surface2));border:1px solid var(--border2);border-bottom:none;color:var(--text);cursor:pointer;letter-spacing:.5px;}
+.adv-btn.ready{background:linear-gradient(135deg,#1a3828,#122018);border-color:var(--jade2);color:var(--jade2);animation:bpulse 1.4s ease-in-out infinite;}
+@keyframes bpulse{0%,100%{box-shadow:none;}50%{box-shadow:0 0 16px rgba(80,200,154,.25);}}
+.nav{display:flex;border-top:1px solid var(--border);}
+.nav-btn{flex:1;padding:7px 2px 5px;background:transparent;border:none;color:var(--text3);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:color .12s;}
+.nav-btn.on{color:var(--gold);}
+.nav-btn .ico{font-size:18px;line-height:1;}
+
+/* HEADER BAR */
+.hbar{display:flex;align-items:center;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.hbar-back{width:34px;height:34px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hbar-title{flex:1;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);}
+.hbar-r{width:34px;display:flex;justify-content:flex-end;}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;max-width:430px;left:50%;transform:translateX(-50%);}
+.overlay-sheet{background:var(--surface);border-radius:var(--r2);width:90%;max-width:380px;max-height:85dvh;display:flex;flex-direction:column;overflow:hidden;animation:pop-in .22s cubic-bezier(.2,.8,.4,1);}
+@keyframes pop-in{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.overlay-scroll{overflow-y:auto;flex:1;padding-bottom:16px;}
+.overlay-btn{padding:14px;text-align:center;font-size:14px;font-weight:700;background:var(--surface2);border:none;border-top:1px solid var(--border);color:var(--text);cursor:pointer;width:100%;flex-shrink:0;}
+.overlay-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
+.overlay-btn.danger{color:var(--scarlet2);background:rgba(160,40,64,.1);}
+
+/* TOAST - CENTERED RECTANGULAR */
+#toast-host{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;width:80vw;max-width:320px;}
+.toast{background:rgba(15,15,26,.97);border:1px solid var(--border2);border-radius:var(--r);padding:10px 18px;font-size:12px;color:var(--text);text-align:center;line-height:1.5;box-shadow:0 4px 24px rgba(0,0,0,.7);animation:tin .25s ease;max-width:100%;}
+.toast.good{border-color:rgba(80,200,120,.4);color:var(--jade2);}
+.toast.bad{border-color:rgba(220,60,80,.4);color:var(--scarlet2);}
+.toast.great{border-color:rgba(200,160,64,.5);color:var(--gold2);}
+@keyframes tin{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+
+/* CARDS */
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin:6px 12px;padding:12px;}
+.card-t{font-size:13px;font-weight:700;margin-bottom:4px;font-family:var(--font-serif);}
+.card-s{font-size:11px;color:var(--text2);line-height:1.55;}
+.card.good{border-color:rgba(80,200,154,.3);background:rgba(58,154,122,.06);}
+.card.warn{border-color:rgba(200,160,64,.3);background:rgba(200,160,64,.05);}
+.card.bad{border-color:rgba(160,40,64,.3);background:rgba(160,40,64,.06);}
+
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:6px 12px;}
+.scell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:9px 6px;text-align:center;}
+.sval{font-size:17px;font-weight:800;font-family:var(--font-mono);}
+.skey{font-size:8.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.pill.c{background:rgba(160,152,136,.18);color:var(--text2);}
+.pill.r{background:rgba(80,128,255,.18);color:#8ab0ff;}
+.pill.l{background:rgba(192,160,64,.18);color:var(--gold2);}
+.pill.m{background:rgba(180,80,255,.18);color:#c880ff;}
+
+/* NOTICES */
+.notice{padding:9px 12px;background:rgba(80,128,255,.07);border:1px solid rgba(80,128,255,.18);border-radius:var(--r);margin:6px 12px;font-size:11px;color:var(--text2);line-height:1.5;}
+.notice.warn{background:rgba(200,160,64,.07);border-color:rgba(200,160,64,.25);color:#d4a84a;}
+.notice.bad{background:rgba(160,40,64,.08);border-color:rgba(160,40,64,.25);color:var(--scarlet2);}
+.notice.good{background:rgba(58,154,122,.08);border-color:rgba(58,154,122,.25);color:var(--jade2);}
+
+/* SETUP */
+.setup-wrap{height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 15%,rgba(80,60,160,.25),transparent 55%),var(--bg);overflow:hidden;}
+.splash{padding:28px 20px 14px;text-align:center;flex-shrink:0;}
+.splash-logo{font-family:var(--font-serif);font-size:30px;font-weight:700;color:var(--gold2);letter-spacing:5px;text-shadow:0 0 30px rgba(240,192,96,.4);margin-bottom:4px;}
+.splash-sub{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.setup-scroll{flex:1;overflow-y:auto;padding-bottom:100px;}
+.setup-cta{position:sticky;bottom:0;padding:10px 16px 14px;background:linear-gradient(transparent,var(--bg) 30%);}
+.cta-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:var(--r2);color:#000;font-size:16px;font-weight:800;letter-spacing:1px;cursor:pointer;}
+.cta-btn:disabled{opacity:.35;cursor:not-allowed;background:var(--surface3);color:var(--text3);}
+.cta-btn.sec{background:linear-gradient(135deg,var(--azure),var(--azure2));color:var(--text);}
+
+/* BREAKTHROUGH */
+.bt-overlay{text-align:center;padding:24px 20px;}
+.bt-emoji{font-size:64px;margin-bottom:12px;animation:popin .5s cubic-bezier(.2,1.4,.4,1) both;}
+@keyframes popin{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.bt-title{font-size:22px;font-weight:800;color:var(--gold2);text-shadow:0 0 24px rgba(240,192,96,.5);letter-spacing:3px;font-family:var(--font-serif);}
+.bt-realm{font-size:15px;padding:4px 0 12px;font-weight:600;}
+
+/* TERRITORY BAR */
+.terr-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:8px 12px;}
+.terr-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center;}
+.terr-num{font-size:22px;font-weight:800;font-family:var(--font-mono);}
+.terr-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;}
+
+/* NPC CARD */
+.npc-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin:6px 12px;padding:12px;}
+.npc-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.npc-portrait{width:44px;height:44px;border-radius:50%;background:var(--surface3);border:2px solid var(--border2);font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.npc-info{flex:1;}
+.npc-name{font-size:13px;font-weight:700;font-family:var(--font-serif);}
+.npc-role{font-size:10px;color:var(--text3);margin-top:2px;}
+.npc-desire{font-size:10px;color:var(--text3);font-style:italic;margin-top:2px;}
+.npc-bond{font-size:18px;font-weight:800;font-family:var(--font-mono);}
+.bond-bar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:8px;}
+.bond-fill{height:100%;border-radius:2px;transition:width .4s;}
+.bond-fill.pos{background:linear-gradient(90deg,var(--jade),var(--jade2));}
+.bond-fill.neg{background:linear-gradient(90deg,var(--scarlet),var(--scarlet2));}
+.npc-acts{display:flex;gap:6px;flex-wrap:wrap;}
+.npc-act{padding:7px 10px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);font-size:11px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;}
+.npc-act.jade{border-color:var(--jade);color:var(--jade2);}
+.npc-act.gold{border-color:var(--gold);color:var(--gold2);}
+.npc-act.red{border-color:var(--scarlet);color:var(--scarlet2);}
+
+/* BIZ GRID */
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px;}
+.biz-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:12px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:4px;}
+.biz-card:active{border-color:var(--gold);}
+.biz-card.owned{border-color:var(--jade);}
+.biz-card.dim{opacity:.45;cursor:not-allowed;}
+.biz-icon{font-size:24px;}
+.biz-name{font-size:12px;font-weight:700;line-height:1.2;}
+.biz-desc{font-size:10px;color:var(--text2);line-height:1.4;}
+.biz-cost{font-size:11px;color:var(--gold);font-weight:700;font-family:var(--font-mono);}
+.biz-yield{font-size:10px;color:var(--jade2);}
+
+/* AUCTION */
+.bid-row{display:flex;gap:6px;margin-top:8px;}
+.bid-inc{flex:1;padding:10px 4px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;}
+.bid-commit{width:100%;padding:13px;margin-top:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:var(--r);color:#000;font-size:14px;font-weight:800;cursor:pointer;}
+.bid-commit:disabled{opacity:.35;cursor:not-allowed;background:var(--surface3);color:var(--text3);}
+
+/* RANK STRIP */
+.rank-strip{display:flex;gap:4px;padding:8px 12px;overflow-x:auto;}
+.rank-pip{flex-shrink:0;padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;font-size:10px;color:var(--text3);white-space:nowrap;}
+.rank-pip.cur{background:rgba(200,160,64,.15);border-color:var(--gold);color:var(--gold2);font-weight:700;}
+.rank-pip.done{background:rgba(58,154,122,.1);border-color:var(--jade);color:var(--jade2);}
+
+/* WINDFALL */
+.windfall{margin:8px 12px;padding:12px;background:linear-gradient(135deg,rgba(192,160,64,.12),rgba(192,160,64,.04));border:1px solid rgba(192,160,64,.35);border-radius:var(--r2);cursor:pointer;position:relative;overflow:hidden;}
+.windfall::before{content:'✨';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:28px;opacity:.3;}
+.windfall-t{font-size:13px;font-weight:700;color:var(--gold2);font-family:var(--font-serif);}
+.windfall-s{font-size:11px;color:var(--text2);margin-top:2px;}
+
+/* DEATH SCREEN */
+.dead-wrap{height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;background:radial-gradient(ellipse at center,rgba(160,40,64,.18),transparent 60%),var(--bg);}
+
+/* CHOICE OVERLAY */
+.choice-opts{padding:0;}
+.choice-opt{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border:none;border-bottom:1px solid var(--border);background:transparent;cursor:pointer;text-align:left;color:var(--text);}
+.choice-opt:active{background:var(--surface2);}
+.choice-ico{font-size:22px;width:36px;text-align:center;flex-shrink:0;}
+.choice-lbl{font-size:13px;font-weight:600;}
+
+/* TROOP TIERS */
+.troop-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 12px;}
+.troop-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center;}
+.troop-ico{font-size:20px;}
+.troop-n{font-size:16px;font-weight:800;font-family:var(--font-mono);margin-top:2px;}
+.troop-lbl{font-size:9px;color:var(--text3);margin-top:2px;}
+.troop-pow{font-size:10px;color:var(--gold);margin-top:2px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast-host"></div>
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════
+// DAO ASCENSION — COMPLETE REBUILD
+// BitLife-style Xianxia simulator
+// ═══════════════════════════════════════════════════
+
+// ─── UTILITIES ───────────────────────────────────
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const byKey=(a,k)=>a.find(x=>x.key===k);
+const fmt=n=>n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=10000?(n/1000).toFixed(1)+'K':''+Math.round(n);
+
+// ─── TOAST (centered rectangular) ────────────────
+let _tq=[],_ta=false;
+function toast(msg,type='',dur=2600){
+  _tq.push({msg,type,dur});
+  if(!_ta)_drainToast();
+}
+function _drainToast(){
+  if(!_tq.length){_ta=false;return;}
+  _ta=true;
+  const {msg,type,dur}=_tq.shift();
+  const h=document.getElementById('toast-host');
+  const el=document.createElement('div');
+  el.className='toast '+(type||'');
+  el.textContent=msg;
+  h.appendChild(el);
+  setTimeout(()=>{el.remove();_drainToast();},dur);
+}
+
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+const REALMS=[
+  {key:'mortal',         name:'Mortal',                  tier:'Mortal',    qiCap:100,  lifespan:80,    chance:95,color:'#a09888',emoji:'🧘',stage:0},
+  {key:'qi_refine',      name:'Qi Refinement',           tier:'Mortal',    qiCap:160,  lifespan:120,   chance:82,color:'#7090d0',emoji:'💠',stage:0},
+  {key:'foundation',     name:'Foundation Establishment',tier:'Mortal',    qiCap:260,  lifespan:220,   chance:70,color:'#60a0e0',emoji:'🔷',stage:0},
+  {key:'golden_core',    name:'Golden Core',             tier:'Mortal',    qiCap:400,  lifespan:500,   chance:58,color:'#c8a040',emoji:'⭐',stage:0},
+  {key:'nascent_soul',   name:'Nascent Soul',            tier:'Mortal',    qiCap:600,  lifespan:1000,  chance:47,color:'#50c89a',emoji:'🌟',stage:0},
+  {key:'soul_form',      name:'Soul Formation',          tier:'Mortal',    qiCap:900,  lifespan:3000,  chance:38,color:'#8058e8',emoji:'🌀',stage:0},
+  {key:'void_amal',      name:'Void Amalgamation',       tier:'Spirit',    qiCap:1300, lifespan:10000, chance:30,color:'#a060ff',emoji:'🌌',stage:1},
+  {key:'body_integ',     name:'Body Integration',        tier:'Spirit',    qiCap:1900, lifespan:25000, chance:24,color:'#ff8040',emoji:'💥',stage:1},
+  {key:'tribulation',    name:'Tribulation Transcendence',tier:'Spirit',   qiCap:2700, lifespan:50000, chance:18,color:'#ffcc00',emoji:'⚡',stage:1},
+  {key:'mahayana',       name:'Mahayana',                tier:'Spirit',    qiCap:3800, lifespan:100000,chance:14,color:'#ff60a0',emoji:'🔮',stage:1},
+  {key:'loose_immortal', name:'Loose Immortal',          tier:'Immortal',  qiCap:5200, lifespan:250000,chance:10,color:'#60ffcc',emoji:'👑',stage:2},
+  {key:'earth_immortal', name:'Earth Immortal',          tier:'Immortal',  qiCap:7200, lifespan:500000,chance:8, color:'#a0ff80',emoji:'🌿',stage:2},
+  {key:'heaven_immortal',name:'Heaven Immortal',         tier:'Immortal',  qiCap:9800, lifespan:1e6,   chance:6, color:'#ffffff',emoji:'☁️',stage:2},
+  {key:'true_immortal',  name:'True Immortal',           tier:'Dao',       qiCap:13500,lifespan:3e6,   chance:5, color:'#ffe0c0',emoji:'☯️',stage:3},
+  {key:'golden_immortal',name:'Golden Immortal',         tier:'Dao',       qiCap:18000,lifespan:8e6,   chance:3, color:'#ffd700',emoji:'🌠',stage:3},
+  {key:'immortal_emperor',name:'Immortal Emperor',       tier:'Dao',       qiCap:25000,lifespan:1e13,  chance:2, color:'#ff9900',emoji:'🏆',stage:3},
+];
+
+const PHYSIQUES=[
+  {key:'mortal_frame',  name:'Mortal Frame',        rarity:'Common',  w:80,mult:1.00,smod:0,  icon:'🧘',desc:'Ordinary body. No penalties, no windfalls.'},
+  {key:'wind_pulse',    name:'Wind Pulse Body',     rarity:'Common',  w:60,mult:1.06,smod:1,  icon:'🌬',desc:'Quick meridians; faster absorption.'},
+  {key:'frost_vein',    name:'Frost Vein Body',     rarity:'Rare',    w:20,mult:1.20,smod:4,  icon:'❄️',desc:'Calmer breakthroughs and excellent pill synergy.'},
+  {key:'stone_bone',    name:'Stone Bone Frame',    rarity:'Rare',    w:18,mult:1.18,smod:5,  icon:'🪨',desc:'Durable meridians, strong tribulation resist.'},
+  {key:'blazing',       name:'Blazing Meridian',    rarity:'Rare',    w:16,mult:1.22,smod:3,  icon:'🔥',desc:'Aggressive qi. Unstable at breakthroughs.'},
+  {key:'void_lightning',name:'Void Lightning Body', rarity:'Legendary',w:5, mult:1.45,smod:7,  icon:'⚡',desc:'Violent growth and tribulation affinity.'},
+  {key:'phoenix',       name:'Phoenix Renewal Body',rarity:'Legendary',w:4, mult:1.42,smod:6,  icon:'🦅',desc:'Resilient vitality and bonus survival.'},
+  {key:'nine_yang',     name:'Nine Yang Tyrant Body',rarity:'Mythic', w:2, mult:1.65,smod:10, icon:'☀️',desc:'Yang qi elevates breakthroughs and combat.'},
+  {key:'primordial_dao',name:'Primordial Dao Body', rarity:'Mythic',  w:1, mult:1.80,smod:12, icon:'☯️',desc:'Once-in-an-age. All parameters enhanced.'},
+];
+
+const ORIGINS=[
+  {key:'village',   name:'Village Mortal',     icon:'🏡',desc:'Poor and resilient.',           stats:{body:6,will:5,luck:2,social:-2},        res:{silver:120,stones:8}},
+  {key:'beggar',    name:'Street Beggar',      icon:'🎭',desc:'Low status, high instinct.',     stats:{will:8,luck:4,charm:-4,ruthlessness:4}, res:{silver:30,stones:3}},
+  {key:'merchant',  name:'Merchant Family',    icon:'💰',desc:'Wealth and contacts.',           stats:{business:9,charm:4,social:6,body:-1},    res:{silver:480,stones:18}},
+  {key:'fallen_clan',name:'Fallen Clan Heir', icon:'⚔️',desc:'Old blood, old enemies.',        stats:{comprehension:6,charm:3,ambition:6},     res:{silver:260,stones:20}},
+  {key:'disciple',  name:'Lay Disciple',       icon:'📜',desc:'Inside the gate already.',      stats:{will:4,comprehension:4,social:4,body:2},  res:{silver:90,stones:15}},
+  {key:'noble',     name:'Minor Noble House',  icon:'🏯',desc:'Wealth, connections, soft body.',stats:{social:8,charm:6,body:-2,luck:3},         res:{silver:650,stones:12}},
+  {key:'war_orphan',name:'War Orphan',         icon:'🗡',desc:'Will of iron, heart of ash.',   stats:{will:10,ruthlessness:6,body:4},           res:{silver:40,stones:10}},
+];
+
+const TEMPERAMENTS=[
+  {key:'steady',     name:'Steady Heart',  icon:'🛡',desc:'Safer, slower, durable.',     stats:{will:7,stability:8,ambition:-2}},
+  {key:'ambitious',  name:'Ambitious',     icon:'🚀',desc:'Faster rise, higher risk.',   stats:{ambition:10,stability:-5,reputation:2}},
+  {key:'ruthless',   name:'Ruthless',      icon:'🗡',desc:'Win ugly. Survive hostile.',  stats:{ruthlessness:10,karma:-10,will:3}},
+  {key:'compassionate',name:'Compassionate',icon:'💞',desc:'Better relationships.',       stats:{charm:6,social:7,ambition:-3}},
+  {key:'cunning',    name:'Cunning',       icon:'🦊',desc:'Business, auctions, schemes.',stats:{business:7,luck:4,comprehension:3}},
+  {key:'scholarly',  name:'Scholarly',     icon:'📚',desc:'Manuals, breakthroughs.',     stats:{comprehension:10,will:2,body:-2}},
+  {key:'warrior',    name:'Martial Heart', icon:'⚔️',desc:'Combat and body cultivation.',stats:{body:8,will:5,comprehension:-2}},
+];
+
+const SECTS=[
+  {key:'jade_pure',    name:'Jade Pure Sacred Sect',    icon:'💚',doctrine:'Orthodox', focus:'Pills, formations, disciplined breakthroughs.',  stats:{comprehension:5,stability:5,karma:4},     elders:['Elder Wei Zhen','Elder Bai Mei','Elder Dao Yun','Elder Su Ling','Elder Kong Hai'],  tier:'Middle'},
+  {key:'heavenly_blade',name:'Heavenly Blade Pavilion', icon:'⚔️',doctrine:'Orthodox', focus:'Sword intent, tournaments, ruthless merit.',     stats:{will:6,reputation:5,body:2},              elders:['Elder Tie Zhan','Elder Feng Qiao','Elder Lin Bao','Elder Xue Tao','Elder Wen Ji'],  tier:'Upper'},
+  {key:'scarlet_night',name:'Scarlet Night Court',      icon:'🌹',doctrine:'Demonic',  focus:'Seduction, blood cultivation, hidden pacts.',    stats:{charm:7,ruthlessness:6,karma:-8},         elders:['Lady Xue Yan','Lady Hua Mei','Elder Blood Moon','Elder Dark Tide','Lady Zhu Ying'],tier:'Middle'},
+  {key:'iron_bastion', name:'Iron Root Bastion',        icon:'🏔',doctrine:'Righteous',focus:'Body refinement, mine control, conquest.',       stats:{body:8,will:4,business:3},                elders:['Elder Kuang Yi','Elder Iron Fist','Elder Tie Shan','Elder Rock Wall','Elder Guan Ba'],tier:'Lower'},
+  {key:'celestial_mkt',name:'Celestial Market Alliance',icon:'🏮',doctrine:'Neutral',  focus:'Commerce, auctions, inter-sect arbitrage.',      stats:{business:8,social:5,charm:3},             elders:['Manager Zhou','Treasurer Gao','Elder Profit','Elder Silk Road','Elder Trade Wind'],tier:'Middle'},
+];
+
+const SECT_RANKS=[
+  {key:'layman',    name:'Layman Disciple',  minR:0, minM:0,    stipS:2,   stipSi:20,  priv:'Outer grounds access'},
+  {key:'outer',     name:'Outer Disciple',   minR:1, minM:30,   stipS:6,   stipSi:50,  priv:'Outer library, basic manuals'},
+  {key:'inner',     name:'Inner Disciple',   minR:2, minM:120,  stipS:18,  stipSi:120, priv:'Inner hall, grade-2 manuals'},
+  {key:'core',      name:'Core Disciple',    minR:4, minM:400,  stipS:50,  stipSi:300, priv:'Peak resources, grade-4 manuals'},
+  {key:'elder_seed',name:'Elder Seed',       minR:6, minM:1000, stipS:120, stipSi:0,   priv:'Elder hall access'},
+  {key:'elder',     name:'Elder',            minR:8, minM:2500, stipS:300, stipSi:0,   priv:'Disciple assignment rights'},
+  {key:'vice',      name:'Vice Sect Leader', minR:11,minM:6000, stipS:800, stipSi:0,   priv:'Sect treasury access'},
+  {key:'patriarch', name:'Sect Patriarch',   minR:13,minM:15000,stipS:2000,stipSi:0,   priv:'Full sect authority'},
+];
+
+const MANUALS=[
+  {key:'jade_breath',   name:'Jade Breath Scripture',          reqR:0, domain:'Qi',         rarity:'Common',   icon:'📖',speed:1,success:4, stability:5, desc:'Foundation art.'},
+  {key:'iron_body',     name:'Iron Body Canon',                reqR:0, domain:'Body',        rarity:'Common',   icon:'📗',speed:1,success:2, stability:4, desc:'Body tempering.'},
+  {key:'wind_blade',    name:'Wind Blade Sect Method',         reqR:1, domain:'Sword',       rarity:'Common',   icon:'🗡',speed:2,success:5, stability:3, desc:'Sword qi circulation.'},
+  {key:'star_river',    name:'Star River Art',                 reqR:2, domain:'Qi',          rarity:'Rare',     icon:'⭐',speed:3,success:7, stability:4, desc:'Celestial qi.'},
+  {key:'blood_sun',     name:'Blood Sun Devil Canon',          reqR:3, domain:'Demonic',     rarity:'Rare',     icon:'🔴',speed:5,success:8, stability:-4,desc:'Forbidden. Faster but darker.',karmaHit:-6},
+  {key:'nine_yang_art', name:'Nine Yang War Scripture',        reqR:4, domain:'Combat',      rarity:'Rare',     icon:'☀️',speed:3,success:6, stability:4, desc:'Aggressive yang qi.'},
+  {key:'void_silk',     name:'Void Silk Illusion Method',      reqR:4, domain:'Illusion',    rarity:'Rare',     icon:'🌀',speed:2,success:5, stability:6, desc:'Phantom movement.'},
+  {key:'phoenix_rebirth',name:'Phoenix Rebirth Scripture',     reqR:5, domain:'Body',        rarity:'Legendary',icon:'🦅',speed:5,success:8, stability:7, desc:'Exceptional durability.'},
+  {key:'heaven_thunder',name:'Heaven Thunder Record',          reqR:6, domain:'Tribulation', rarity:'Legendary',icon:'⚡',speed:6,success:10,stability:5, desc:'Turn lightning to power.'},
+  {key:'dao_heart',     name:'Dao Heart Sutra',                reqR:8, domain:'Soul',        rarity:'Legendary',icon:'☯️',speed:5,success:8, stability:10,desc:'Mind-fortifying.'},
+  {key:'immortal_edict',name:'Immortal Edict of Grand Unity',  reqR:11,domain:'Immortal',   rarity:'Mythic',   icon:'👑',speed:9,success:12,stability:9, desc:'Immortal-tier edict.'},
+];
+
+const BEASTS=[
+  {key:'fox',     name:'Moon Fox',         tier:'Spirit',  icon:'🦊',bonus:{charm:4,luck:4},      cultivBonus:3, reqR:0},
+  {key:'turtle',  name:'Blackwater Turtle',tier:'Spirit',  icon:'🐢',bonus:{stability:5,body:4},   cultivBonus:2, reqR:0},
+  {key:'hawk',    name:'Thunderhawk',      tier:'Spirit',  icon:'🦅',bonus:{will:4,success:3},      cultivBonus:4, reqR:1},
+  {key:'wolf',    name:'Starwolf',         tier:'Spirit',  icon:'🐺',bonus:{body:5,ruthlessness:3}, cultivBonus:3, reqR:1},
+  {key:'serpent', name:'Five Poison Viper',tier:'Spirit',  icon:'🐍',bonus:{comprehension:5},       cultivBonus:4, reqR:2},
+  {key:'drake',   name:'Azure Drake',      tier:'Divine',  icon:'🐲',bonus:{reputation:8,body:6},   cultivBonus:8, reqR:4},
+  {key:'phoenix_b',name:'Vermilion Phoenix',tier:'Divine', icon:'🔥',bonus:{purity:7,charm:7},       cultivBonus:10,reqR:5},
+  {key:'qilin',   name:'Golden Qilin',     tier:'Divine',  icon:'✨',bonus:{luck:8,reputation:10},   cultivBonus:12,reqR:6},
+  {key:'tianlong',name:'Tian Long Dragon', tier:'Immortal',icon:'🌟',bonus:{success:12,body:10},     cultivBonus:16,reqR:8},
+];
+
+const LOCATIONS=[
+  {key:'hamlet',    name:'Quiet Brook Hamlet',    type:'Mortal',   stage:0,danger:5, wealth:1,icon:'🏡',desc:'Peaceful farmland. Good for laying low.'},
+  {key:'city',      name:'Nine Lantern City',     type:'City',     stage:0,danger:14,wealth:4,icon:'🏮',desc:'Bustling trade hub.'},
+  {key:'forest',    name:'Mossvein Forest',       type:'Wilds',    stage:0,danger:24,wealth:5,icon:'🌲',desc:'Wild beasts and spirit herbs.'},
+  {key:'ruins',     name:'Ashen Emperor Ruins',   type:'Ruin',     stage:0,danger:35,wealth:7,icon:'🏛',desc:'Ancient legacy. Treasure and peril.'},
+  {key:'mine',      name:'Deep Spirit Mine',      type:'Resource', stage:0,danger:28,wealth:6,icon:'⛏',desc:'Spirit stone veins.'},
+  {key:'spirit_sea',name:'Azure Spirit Sea',      type:'Spirit',   stage:1,danger:50,wealth:10,icon:'🌊',desc:'Vast spiritual energy.'},
+  {key:'celestial', name:'Celestial Cloud City',  type:'Immortal', stage:2,danger:70,wealth:15,icon:'☁️',desc:'Immortal city of light.'},
+];
+
+const PROPERTIES=[
+  {key:'hut',      name:'Village Courtyard',    icon:'🏠',costSi:180,  costSt:0,   costJ:0,stage:0,desc:'Simple dwelling. Allows 1 wife.',wifeCap:1},
+  {key:'shop',     name:'Market Shopfront',     icon:'🏪',costSi:520,  costSt:0,   costJ:0,stage:0,desc:'Street presence. Allows 2 wives.',wifeCap:2},
+  {key:'estate',   name:'County Estate',        icon:'🏡',costSi:1400, costSt:0,   costJ:0,stage:0,desc:'Significant property. Allows 3 wives.',wifeCap:3},
+  {key:'spirit_court',name:'Spirit Spring Court',icon:'⛩',costSi:0,   costSt:180, costJ:0,stage:0,desc:'Qi-rich grounds. Allows concubines.',wifeCap:4},
+  {key:'spirit_palace',name:'Spirit Palace',    icon:'🏯',costSi:0,   costSt:600, costJ:0,stage:1,desc:'Grand spirit residence.',wifeCap:5},
+  {key:'immortal_manor',name:'Immortal Manor',  icon:'☁️',costSi:0,   costSt:680, costJ:0,stage:1,desc:'Upper-world prestige.',wifeCap:6},
+];
+
+// Troop tiers
+const TROOP_TIERS=[
+  {key:'mortal_militia',  name:'Mortal Militia',  icon:'🪖',power:50,   cost:20,  costType:'silver',desc:'Untrained mortals.'},
+  {key:'qi_soldier',      name:'Qi Soldier',      icon:'⚔️',power:200,  cost:30,  costType:'stones',desc:'Basic qi-infused troops.'},
+  {key:'spirit_warrior',  name:'Spirit Warrior',  icon:'🗡',power:800,  cost:80,  costType:'stones',desc:'Spirit realm fighters.'},
+  {key:'divine_guard',    name:'Divine Guard',    icon:'🌟',power:3000, cost:250, costType:'stones',desc:'Elite immortal warriors.'},
+];
+const GENERAL_TIERS=[
+  {key:'mortal_officer',name:'Mortal Officer',  icon:'👮',power:500,   cost:100, costType:'silver',desc:'Leads mortal troops.'},
+  {key:'cultivator_general',name:'Cultivator General',icon:'🎖',power:2000,cost:100,costType:'stones',desc:'Realm-3+ cultivator.'},
+  {key:'spirit_general', name:'Spirit General',  icon:'⚜️',power:8000,  cost:300, costType:'stones',desc:'Spirit realm commander.'},
+  {key:'immortal_marshal',name:'Immortal Marshal',icon:'🏅',power:30000,cost:1000,costType:'stones',desc:'Immortal realm warlord.'},
+];
+
+const MORTAL_JOBS=[
+  {key:'farmer',   name:'Farmhand',           icon:'🌾',income:30, itype:'silver',reqR:0,desc:'Hard labor.'},
+  {key:'laborer',  name:'Common Laborer',     icon:'⛏',income:25, itype:'silver',reqR:0,desc:'City work.'},
+  {key:'merchant_j',name:'Trade Apprentice',  icon:'💰',income:55, itype:'silver',reqR:0,desc:'Learn markets.'},
+  {key:'guard',    name:'City Guard',         icon:'🛡',income:45, itype:'silver',reqR:0,desc:'Respectable, dangerous.'},
+  {key:'physician',name:'Mortal Physician',   icon:'💊',income:70, itype:'silver',reqR:0,desc:'Heal for coin.'},
+  {key:'enforcer', name:'Sect Enforcer',      icon:'⚔️',income:5,  itype:'stones',reqR:1,desc:'Police sect territory.'},
+  {key:'alch_ap',  name:'Alchemy Apprentice', icon:'⚗️',income:8,  itype:'stones',reqR:1,desc:'Tend pill furnaces.'},
+  {key:'refiner',  name:'Artifact Refiner',   icon:'🔨',income:15, itype:'stones',reqR:3,desc:'Forge spirit weapons.'},
+];
+
+const RELATION_POOL=[
+  {key:'master',    name:'Elder Wei Zhen',     role:'Senior Master',      icon:'🧙',faction:'sect',   desire:'Glory for the sect.',    base:40,giftable:true, romanceable:false},
+  {key:'rival',     name:'Han Tianshu',        role:'Sect Rival',         icon:'🗡',faction:'sect',   desire:'Surpass you.',           base:-20,giftable:false,romanceable:false},
+  {key:'comp_lian', name:'Lian Yue',           role:'Companion',          icon:'💕',faction:'none',   desire:'Find a worthy partner.',  base:30,giftable:true, romanceable:true, charm:35},
+  {key:'comp_mei',  name:'Mei Shanshan',       role:'Alchemist',          icon:'🌸',faction:'none',   desire:'Independence.',           base:25,giftable:true, romanceable:true, charm:40},
+  {key:'comp_su',   name:'Su Qinghe',          role:'Swordsman',          icon:'⚔️',faction:'sect',   desire:'Sword mastery.',          base:20,giftable:true, romanceable:true, charm:30},
+  {key:'patriarch_r',name:'Patriarch Ji',      role:'Sect Patriarch',     icon:'👴',faction:'sect',   desire:'Preserve sect legacy.',   base:15,giftable:true, romanceable:false},
+  {key:'merchant_a',name:'Shopkeeper Zhao',    role:'Market Ally',        icon:'💰',faction:'market', desire:'Profitable cooperation.', base:35,giftable:true, romanceable:false},
+  {key:'disciple1', name:'Yan Chao',           role:'Sword Junior',       icon:'🧒',faction:'sect',   desire:'Surpass the master.',     base:50,giftable:true, romanceable:false},
+  {key:'dao_enemy', name:'Gu Feiyun',          role:'Sect Enemy',         icon:'😈',faction:'enemy',  desire:'Watch you fail.',         base:-35,giftable:false,romanceable:false},
+  {key:'old_friend',name:'Chen Bao',           role:'Childhood Friend',   icon:'🤝',faction:'mortal', desire:'Reconnect.',              base:55,giftable:true, romanceable:false},
+  {key:'beggar_woman',name:'Li Hua',           role:'Mortal Wanderer',    icon:'🎭',faction:'mortal', desire:'Survive another day.',    base:10,giftable:true, romanceable:true, charm:15},
+  {key:'immortal_stranger',name:'Celestial Qin',role:'Wandering Immortal',icon:'🌟',faction:'rogue',  desire:'Pass on a legacy.',       base:20,giftable:false,romanceable:false},
+];
+
+const BUSINESSES_DEF=[
+  {key:'apoth',   name:'Spirit Herb Apothecary',  icon:'🌿',reqR:0,costSt:80, costSi:0,   yieldSt:18,yieldSi:120,risk:8, desc:'Sell herbs and pills.',    activeMultiplier:4,passiveMultiplier:1},
+  {key:'caravan', name:'Inter-Sect Caravan',       icon:'🚚',reqR:1,costSt:0,  costSi:500, yieldSt:25,yieldSi:300,risk:14,desc:'Trade routes.',             activeMultiplier:4,passiveMultiplier:1},
+  {key:'beast_breed',name:'Spirit Beast Breeding', icon:'🐉',reqR:3,costSt:200,costSi:0,   yieldSt:45,yieldSi:200,risk:15,desc:'Breed spirit beasts.',      activeMultiplier:4,passiveMultiplier:1},
+  {key:'pill_hall',name:'Pill Refining Hall',      icon:'💊',reqR:4,costSt:300,costSi:0,   yieldSt:75,yieldSi:0,  risk:10,desc:'High-grade pills.',         activeMultiplier:4,passiveMultiplier:1},
+  {key:'auction_house',name:'Minor Auction House', icon:'🏦',reqR:5,costSt:400,costSi:0,   yieldSt:110,yieldSi:500,risk:20,desc:'Run an auction hall.',     activeMultiplier:4,passiveMultiplier:1},
+  {key:'mine_share',name:'Spirit Stone Vein',      icon:'⛏',reqR:3,costSt:250,costSi:0,   yieldSt:55,yieldSi:0,  risk:18,desc:'Passive stone generation.',activeMultiplier:4,passiveMultiplier:1},
+];
+
+const SHOP_ITEMS=[
+  {key:'crude_pill',   name:'Crude Qi Pill',         icon:'💊',tier:0,costSt:12,costSi:0,  desc:'Boosts qi gain.',          eff:{qiBoost:20}},
+  {key:'body_herb',    name:'Body Tempering Herb',    icon:'🌿',tier:0,costSt:0, costSi:80, desc:'Strengthens meridians.',   eff:{statBoost:{body:2}}},
+  {key:'luck_charm',   name:'Fortune Jade Charm',     icon:'🍀',tier:0,costSt:18,costSi:0,  desc:'+5% breakthrough chance.', eff:{successBoost:5}},
+  {key:'calm_incense', name:'Calming Heart Incense',  icon:'🕯',tier:0,costSt:15,costSi:0,  desc:'+6 stability.',            eff:{stabilityBoost:6}},
+  {key:'spirit_cauldron',name:'Spirit Pill Cauldron', icon:'⚗️',tier:0,costSt:0, costSi:300,desc:'Required for alchemy.',    eff:{artifact:'spirit_cauldron'}},
+  {key:'cond_pill',    name:'Condensation Pill',      icon:'💎',tier:1,costSt:30,costSi:0,  desc:'+9% success.',             eff:{successBoost:9,stabilityBoost:3}},
+  {key:'meridian_dew', name:'Meridian Purity Dew',    icon:'💧',tier:1,costSt:55,costSi:0,  desc:'Restores purity +10.',     eff:{purityBoost:10}},
+  {key:'insight_scroll',name:'Comprehension Scroll',  icon:'📜',tier:1,costSt:0, costSi:240,desc:'+30 insight.',             eff:{insightBoost:30}},
+  {key:'beast_egg_shop',name:'Spirit Beast Egg',      icon:'🥚',tier:1,costSt:60,costSi:0,  desc:'Hatch a spirit companion.', eff:{beastEgg:true}},
+  {key:'heaven_talis', name:'Heaven Ward Talisman',   icon:'⚡',tier:2,costSt:85,costSi:0,  desc:'Softens tribulation.',     eff:{successBoost:7,stabilityBoost:12}},
+  {key:'dao_crystal',  name:'Dao Comprehension Crystal',icon:'🔷',tier:2,costSt:120,costSi:0,desc:'+80 insight.',            eff:{insightBoost:80}},
+  {key:'beast_egg_rare',name:'Rare Beast Egg',        icon:'🥚',tier:2,costSt:180,costSi:0, desc:'Higher-tier companion.',   eff:{beastEgg:true,rare:true}},
+  {key:'sky_pill',     name:'Sky Transcendence Pill', icon:'✨',tier:3,costSt:200,costSi:0,  desc:'+15% breakthrough.',       eff:{successBoost:15}},
+  {key:'void_crystal', name:'Void Space Crystal',     icon:'🌌',tier:3,costSt:240,costSi:0,  desc:'+50 qi cap.',              eff:{qiCapBoost:50}},
+  {key:'immortal_pill',name:'Immortal Realm Jade',    icon:'👑',tier:4,costSt:500,costSi:0,  desc:'Immortal currency.',       eff:{immortalJade:1}},
+  {key:'dao_pill',     name:'Dao Origin Returning Pill',icon:'☯️',tier:4,costSt:400,costSi:0,desc:'+20% immortal breakthrough.',eff:{successBoost:20}},
+];
+
+const AUCTION_POOL=[
+  {key:'a_manual_1',  name:'Forgotten Heaven Manual',icon:'📜',type:'manual',  baseP:180,desc:'Ancient scripture.',    manKey:'star_river'},
+  {key:'a_manual_2',  name:'Blood Sun Fragment',     icon:'📖',type:'manual',  baseP:220,desc:'Demonic cultivation.',  manKey:'blood_sun'},
+  {key:'a_pill_1',    name:'Heaven Earth Return Pill',icon:'💊',type:'consumable',baseP:300,desc:'+20% breakthrough.',eff:{successBoost:20}},
+  {key:'a_egg_1',     name:'Divine Beast Egg',       icon:'🥚',type:'beast_egg',baseP:350,desc:'Unknown bloodline.'},
+  {key:'a_relic_1',   name:'Ancient Combat Relic',   icon:'⚔️',type:'artifact', baseP:400,desc:'Fallen immortal artifact.',aKey:'heaven_sword'},
+  {key:'a_herb_lot',  name:'Rare Herb Lot ×50',      icon:'🌿',type:'resource', baseP:140,desc:'Bulk spirit herbs.',   eff:{herbs:50}},
+  {key:'a_terr_deed', name:'Territory Deed',         icon:'📜',type:'territory',baseP:500,desc:'Minor territory claim.'},
+  {key:'a_dao_scr',   name:'Primordial Dao Fragment', icon:'☯️',type:'manual',  baseP:800,desc:'Shard of ancient Dao.',manKey:'dao_heart',reqR:6},
+  {key:'a_egg_legend',name:'Legendary Dragon Egg',   icon:'🔮',type:'beast_egg',baseP:700,desc:'Dragon bloodline.',    reqR:5},
+  {key:'a_alchemy_fire',name:'True Alchemy Flame',   icon:'🔥',type:'consumable',baseP:250,desc:'Perfect alchemy.',    eff:{alchemyBoost:30}},
+];
+
+const WINDFALL_EVENTS=[
+  {key:'cave',   name:'Ancient Cave Residence',    desc:'Hidden cave with qi veins.',stones:120,silver:0,insight:60, special:null},
+  {key:'ring',   name:"Dying Elder's Storage Ring",desc:'A wandering elder left behind.',stones:80,silver:200,insight:30,special:'relic'},
+  {key:'stele',  name:'Stone Stele Inheritance',   desc:'Ancient technique revealed.',  stones:40,silver:0,insight:100,special:'manual'},
+  {key:'fruit',  name:'Secret Realm Spirit Fruit', desc:'Spirit fruit at peak maturity.',stones:60,silver:0,insight:50, special:'physique_boost'},
+  {key:'immortal_hint',name:"Roaming Immortal's Guidance",desc:'Cryptic but real guidance.',stones:0,silver:0,insight:150,special:'comprehension_boost'},
+  {key:'egg_wind',name:'Wild Beast Egg Found',     desc:'Pulsing egg chose you.',       stones:30,silver:0,insight:20, special:'beast_egg'},
+];
+
+const YEAR_EVENTS=[
+  {key:'bully',   realm:-1,title:'A Sect Bully Demands Tribute', text:'An arrogant senior demands your resources.',opts:[
+    {key:'yield', label:'Pay the Tribute', emoji:'😶',eff:{stones:-15},res:'You swallowed it.'},
+    {key:'fight', label:'Refuse and Fight',emoji:'⚔️',eff:{will:2,body:-2},res:'Your will hardened.'},
+    {key:'scheme',label:'Report to Elder', emoji:'📜',eff:{sectFavor:5,reputation:2},res:'Elder reprimanded them.'},
+  ]},
+  {key:'rival_ch',realm:2, title:'Your Rival Challenges Progress', text:'The rival is furious at your advancement.',opts:[
+    {key:'duel',  label:'Accept Public Duel',emoji:'⚔️',eff:{reputation:8,body:-4},res:'Everyone remembers.'},
+    {key:'ignore',label:'Ignore',           emoji:'😌',eff:{reputation:-3},res:'They took it as cowardice.'},
+    {key:'nego',  label:'Negotiate',        emoji:'🤝',eff:{social:2,reputation:3},res:'Conflict deferred.'},
+  ]},
+  {key:'inheritance',realm:1,title:'A Dying Elder Passes Something On',text:'A fading elder extends a trembling hand.',opts:[
+    {key:'accept',label:'Accept the Gift', emoji:'🤲',eff:{insightGain:40,karma:-3},res:'Received insight. Karma to settle.'},
+    {key:'refuse',label:'Refuse Respectfully',emoji:'🙏',eff:{reputation:4,karma:3},res:'Unexpected admiration.'},
+  ]},
+  {key:'forbidden',realm:4,title:'A Forbidden Cultivation Record',text:'You discover a sealed demonic art.',opts:[
+    {key:'study', label:'Study It', emoji:'📖',eff:{comprehension:5,success:5,karma:-8},res:'Power gained. Dao looks away.'},
+    {key:'burn',  label:'Burn It',  emoji:'🔥',eff:{karma:6,reputation:4},res:'You burned it.'},
+    {key:'sell',  label:'Sell It',  emoji:'💰',eff:{stones:100,karma:-3},res:'Someone else bought the corruption.'},
+  ]},
+  {key:'dao_insight',realm:5,title:'A Moment of Dao Insight',text:'Under moonlight, the laws of heaven become legible.',opts:[
+    {key:'absorb',label:'Absorb',       emoji:'🌙',eff:{insightGain:80,stability:4},res:'Rare Dao comprehension.'},
+    {key:'share', label:'Share Companion',emoji:'🤝',eff:{insightGain:40,daoCompBond:15},res:'Bond deepened.'},
+  ]},
+  {key:'mortal_plea',realm:0,title:'A Village Elder Kneels Before You',text:'300 mortals about to lose their land.',opts:[
+    {key:'help',  label:'Intervene',   emoji:'🛡',eff:{karma:10,reputation:8,stones:-20},res:'Village owes you everything.'},
+    {key:'ignore',label:'Walk Past',   emoji:'🚶',eff:{karma:-8},res:'The village does not forget.'},
+    {key:'demand',label:'Demand Pay',  emoji:'💰',eff:{silver:300,karma:-3,reputation:3},res:'You extracted compensation.'},
+  ]},
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+function rollPhysique(){
+  const tot=PHYSIQUES.reduce((s,p)=>s+p.w,0);let r=Math.random()*tot;
+  for(const p of PHYSIQUES){r-=p.w;if(r<=0)return p.key;}
+  return 'mortal_frame';
+}
+
+function createState(){
+  return {
+    screen:'setup',
+    setupStep:0,
+    selectedOrigin:null,
+    selectedTemperament:null,
+    selectedPhysique:rollPhysique(),
+    selectedPath:null,
+    selectedSect:null,
+    // Game
+    name:'The Cultivator',age:16,year:1,
+    realmIndex:0,minorLevel:1,minorQi:0,qi:0,qiCap:REALMS[0].qiCap,
+    selectedAction:'cultivate',
+    // Stats
+    stats:{body:48,comprehension:50,will:48,charm:42,luck:45,purity:54,karma:0,ambition:50,stability:52,social:44,business:42,reputation:10,ruthlessness:30,instability:0},
+    // Resources
+    res:{silver:0,stones:0,merit:0,insight:0,herbs:0,relics:0,debt:0,immortalJade:0},
+    // Inventory
+    inv:{manuals:[],artifacts:[],properties:[],consumables:{}},
+    // Job
+    currentJob:'farmer',
+    // Business
+    businesses:[],
+    // Relations
+    relations:[],
+    // Family
+    family:{spouse:null,spouse2:null,spouse3:null,concubines:[],daoComp:null,heirs:0,clanTier:'Common Family'},
+    // Sect
+    sect:{joined:false,key:null,rankKey:'layman',favor:0,merit:0,rivalryPressure:0,chosenElder:null,elderBondsMap:{}},
+    // Beast
+    beast:{activeKey:null,loyalty:0,score:0,pendingEgg:false,pendingTier:'common'},
+    // Military — troop tiers
+    troops:{mortal_militia:0,qi_soldier:0,spirit_warrior:0,divine_guard:0},
+    generals:{mortal_officer:0,cultivator_general:0,spirit_general:0,immortal_marshal:0},
+    // World
+    locationKey:'hamlet',
+    territories:{mortal:0,spiritual:0,immortal:0},
+    dynastyTier:'wanderer',
+    // Auction
+    auction:{active:false,lot:null,playerBid:0,oppBid:0,oppMax:0,resolved:false,msg:''},
+    // Windfall
+    windfallUsed:0,pendingWindfall:null,
+    // Events
+    eventLog:[],latestEntry:{title:'Journey Begins',text:'Your path opens before you.',category:'Life',tone:'neutral'},
+    overlay:null,overlayData:null,
+    // UI state
+    activeTab:'chronicle',subscreen:null,
+    // Metrics
+    metrics:{breakthroughs:0,marriages:0,auctions:0,crimes:0},
+    // Disciples
+    disciples:[],
+    // Settings
+    settings:{ageConfirm:false},
+    // Shop rotation (year-based seed)
+    shopSeed:0,
+  };
+}
+
+function writeLog(s,title,text,cat='World',tone='neutral'){
+  const e={year:s.year,age:s.age,title,text,category:cat,tone};
+  s.eventLog.unshift(e);if(s.eventLog.length>300)s.eventLog.length=300;
+  s.latestEntry=e;
+}
+
+function startGame(s){
+  const origin=byKey(ORIGINS,s.selectedOrigin);
+  const temp=byKey(TEMPERAMENTS,s.selectedTemperament);
+  const phy=byKey(PHYSIQUES,s.selectedPhysique);
+  const sectDef=s.selectedSect?byKey(SECTS,s.selectedSect):null;
+  // Build stats
+  const base={body:48,comprehension:50,will:48,charm:42,luck:45,purity:54,karma:0,ambition:50,stability:52,social:44,business:42,reputation:10,ruthlessness:30,instability:0};
+  const addSt=(st)=>{if(!st)return;Object.entries(st).forEach(([k,v])=>{if(k in base)base[k]=clamp(base[k]+v,k==='karma'?-100:0,100);});};
+  addSt(origin.stats);addSt(temp.stats);if(sectDef)addSt(sectDef.stats);
+  s.stats={...base};
+  s.res.silver=origin.res.silver;s.res.stones=origin.res.stones;
+  s.qiCap=REALMS[0].qiCap;s.qi=0;
+  // Init relations
+  s.relations=RELATION_POOL.map(r=>({...r,bond:r.base+rand(-8,8),trust:clamp(r.base+rand(-12,12),-100,100),giftCooldown:0}));
+  // Join sect
+  if(s.selectedPath==='sect'&&s.selectedSect){
+    s.sect.joined=true;s.sect.key=s.selectedSect;s.sect.rankKey='layman';
+    const sm=MANUALS.find(m=>m.reqR===0&&!s.inv.manuals.includes(m.key));
+    if(sm)s.inv.manuals.push(sm.key);
+  }
+  s.screen='game';s.activeTab='chronicle';
+  writeLog(s,'Journey Begins','Your path opens. The world is vast and indifferent.','Life','good');
+}
+
+// ─── GAME MECHANICS ──────────────────────────────
+function getPhy(s){return byKey(PHYSIQUES,s.selectedPhysique)||PHYSIQUES[0];}
+function getRealm(s){return REALMS[clamp(s.realmIndex,0,REALMS.length-1)];}
+function lifespanCap(s){
+  const r=getRealm(s);
+  const bonus=Math.round((s.stats.body-50)*12)+Math.round((s.stats.will-50)*8)+Math.round((s.stats.purity-50)*14);
+  return Math.max(r.lifespan+bonus,Math.round(r.lifespan*.8));
+}
+function minorQiNeeded(s){
+  const r=getRealm(s);
+  const base=r.qiCap/9;
+  return Math.round(base*(1+(s.minorLevel-1)*.1+s.realmIndex*.15));
+}
+function cultivSpeed(s){
+  const phy=getPhy(s);
+  let base=10+Math.round((s.stats.comprehension-50)*.15)+Math.round((s.stats.purity-50)*.12)+Math.round((s.stats.will-50)*.08);
+  base=Math.max(2,base-s.realmIndex*.6);
+  base=Math.round(base*phy.mult);
+  if(s.beast.activeKey){const b=byKey(BEASTS,s.beast.activeKey);if(b)base+=b.cultivBonus;}
+  // Elder master bonus
+  if(s.sect.chosenElder)base+=3;
+  return Math.max(1,base);
+}
+function btProfile(s){
+  const r=getRealm(s);const phy=getPhy(s);
+  let chance=r.chance+phy.smod;
+  chance+=Math.round((s.stats.comprehension-50)*.15)+Math.round((s.stats.stability-50)*.10)+Math.round((s.stats.purity-50)*.10);
+  // Manual bonuses
+  for(const mk of s.inv.manuals){const m=byKey(MANUALS,mk);if(m)chance+=m.success*.5;}
+  chance-=Math.round(s.stats.instability*.4);
+  if(s.stats.karma<-20)chance-=Math.round(Math.abs(s.stats.karma+20)*.2);
+  if(s.family.daoComp)chance+=8;
+  chance+=(s.inv.consumables.successBoost||0);
+  chance=clamp(chance,5,97);
+  const stab=clamp(60+Math.round((s.stats.stability-50)*.5)-Math.round(s.stats.instability*.3)+(s.inv.consumables.stabilityBoost||0),10,95);
+  const fatal=clamp(Math.round((100-stab)*.1)+(s.realmIndex>6?5:0),0,35);
+  return{chance,stability:stab,fatality:fatal};
+}
+
+// Territory privy purse calculation
+function privy(s){
+  return s.territories.mortal*50+s.territories.spiritual*200+s.territories.immortal*800;
+}
+
+// Military power calculation
+function militaryPower(s){
+  let p=0;
+  for(const[k,n] of Object.entries(s.troops)){const t=byKey(TROOP_TIERS,k);if(t)p+=t.power*n;}
+  for(const[k,n] of Object.entries(s.generals)){const g=byKey(GENERAL_TIERS,k);if(g)p+=g.power*n;}
+  p+=powerRating(s)*.5;
+  return Math.round(p);
+}
+
+function powerRating(s){
+  let p=s.realmIndex*800+s.minorLevel*80;
+  p+=s.stats.body+s.stats.will+s.stats.comprehension;
+  p+=s.inv.artifacts.length*150;
+  p+=(s.beast.activeKey?(byKey(BEASTS,s.beast.activeKey)?.cultivBonus||0)*80:0);
+  p+=s.territories.mortal*200+s.territories.spiritual*600+s.territories.immortal*2000;
+  return Math.round(p);
+}
+
+function totalTroops(s){
+  return Object.values(s.troops).reduce((a,b)=>a+b,0);
+}
+function totalGenerals(s){
+  return Object.values(s.generals).reduce((a,b)=>a+b,0);
+}
+
+// Casualty calculation: ~20% base, reduced by troop quality
+function calcCasualties(s,tier){
+  const total=totalTroops(s);if(total===0)return 0;
+  let base=0.20; // 20% base
+  // Better troops reduce casualties
+  const elite=(s.troops.spirit_warrior||0)+(s.troops.divine_guard||0);
+  const eliteRatio=elite/Math.max(1,total);
+  base=base*(1-eliteRatio*.5); // elite troops halve casualty rate
+  // Generals reduce casualties
+  const genBonus=totalGenerals(s)*.02;
+  base=Math.max(.05,base-genBonus);
+  // Scale with held territories
+  const terr=tier==='mortal'?s.territories.mortal:tier==='spiritual'?s.territories.spiritual:s.territories.immortal;
+  const terrScale=1+terr*.1; // more territory = more casualties proportionally
+  return Math.min(.6,base*terrScale);
+}
+
+// Actions
+function resolveCultivate(s){
+  const gain=cultivSpeed(s);
+  s.minorQi=(s.minorQi||0)+gain;
+  const needed=minorQiNeeded(s);
+  let leveled=false;
+  while(s.minorQi>=needed&&s.minorLevel<9){s.minorQi-=needed;s.minorLevel++;leveled=true;}
+  if(s.minorLevel>=9)s.minorQi=Math.min(s.minorQi,needed);
+  const pct=(s.minorLevel-1)/8+Math.min(s.minorQi/needed,1)/9;
+  s.qi=clamp(Math.round(pct*s.qiCap),0,s.qiCap);
+  s.stats.purity=clamp(s.stats.purity+1,0,100);s.stats.instability=clamp(s.stats.instability-1,0,100);
+  writeLog(s,leveled?`Minor Level ${s.minorLevel} Achieved`:'Closed-Door Cultivation',leveled?`Reached Lv${s.minorLevel}/9 in ${getRealm(s).name}.`:`Gained ${gain} qi this year.`,'Cultivation',leveled?'good':'neutral');
+}
+
+function resolveStudy(s){
+  const gain=rand(8,18)+Math.round((s.stats.comprehension-50)*.16);
+  s.res.insight+=gain;s.stats.comprehension=clamp(s.stats.comprehension+1,0,100);
+  const avail=MANUALS.filter(m=>s.realmIndex>=m.reqR&&!s.inv.manuals.includes(m.key)&&m.rarity!=='Mythic');
+  if(avail.length&&Math.random()<.15){const m=pick(avail);s.inv.manuals.push(m.key);writeLog(s,'Manual Discovered',`Study resolved into ${m.name}.`,'Study','good');}
+  else writeLog(s,'Doctrine Study',`Gained ${gain} insight.`,'Study','neutral');
+}
+
+function resolveSectDuty(s){
+  if(!s.sect.joined){writeLog(s,'No Sect Affiliation','You are a wandering cultivator.','Sect','bad');return;}
+  const merit=20+rand(6,20);const favor=4+rand(1,7);
+  s.res.merit+=merit;s.sect.favor=clamp(s.sect.favor+favor,0,100);s.sect.merit=(s.sect.merit||0)+merit;
+  autoPromote(s);
+  if(Math.random()<.22){s.stats.karma=clamp(s.stats.karma-4,-100,100);writeLog(s,'Sect Duty — Dirty Work',`Earned ${merit} merit, but soiled karma.`,'Sect','bad');}
+  else writeLog(s,'Sect Duty Completed',`Earned ${merit} merit and ${favor} favor.`,'Sect','good');
+}
+
+function resolveExplore(s){
+  const loc=byKey(LOCATIONS,s.locationKey);
+  if(loc.stage>0&&s.realmIndex<loc.stage*6){writeLog(s,'Realm Locked','Need higher cultivation for this location.','World','bad');return;}
+  const haul=rand(22,70)+loc.wealth*8;
+  const danger=loc.danger+Math.round(s.stats.instability*.45)-Math.round(s.stats.body*.28)-(s.inv.consumables.dangerReduce||0);
+  s.res.stones+=haul;s.res.herbs+=rand(1,3);s.res.insight+=rand(5,15);
+  if(Math.random()<.04&&!s.beast.pendingEgg&&!s.beast.activeKey){s.beast.pendingEgg=true;writeLog(s,'Beast Egg Found','A pulsing egg chose you.','Beast','good');}
+  if(Math.random()*100<clamp(danger,5,70)){
+    s.stats.body=clamp(s.stats.body-rand(1,5),0,100);s.stats.instability=clamp(s.stats.instability+rand(5,12),0,100);
+    writeLog(s,'Expedition Injury',`Returned with ${haul} stones but torn meridians.`,'World','bad');
+  } else {
+    if(Math.random()<.2)s.res.relics++;
+    writeLog(s,'Expedition Success',`Explored ${loc.name}. Returned richer and wiser.`,'World','good');
+  }
+  if(s.inv.consumables.dangerReduce)s.inv.consumables.dangerReduce=0;
+}
+
+function resolveMarket(s){
+  const gain=rand(10,28)+Math.round((s.stats.business-50)*.35);
+  s.res.silver+=gain*8;s.res.stones+=Math.max(0,Math.round(gain/3));
+  writeLog(s,'Market Arbitrage','Traded resources. Liquidity improved.','Market','good');
+}
+
+function resolveRomance(s){
+  const cands=s.relations.filter(r=>RELATION_POOL.find(p=>p.key===r.key)?.romanceable);
+  const best=cands.sort((a,b)=>(b.bond+b.trust)-(a.bond+a.trust))[0];
+  if(best){best.bond=clamp(best.bond+rand(8,16),-100,100);best.trust=clamp(best.trust+rand(7,14),-100,100);}
+  s.stats.charm=clamp(s.stats.charm+1,0,100);
+  // Check marriage
+  const propCount=[s.family.spouse,s.family.spouse2,s.family.spouse3].filter(Boolean).length;
+  const maxWives=_maxWives(s);
+  if(propCount<maxWives&&best&&best.bond>=60&&Math.random()<.28){
+    if(!s.family.spouse){s.family.spouse=best.name;}
+    else if(!s.family.spouse2&&s.realmIndex>=2){s.family.spouse2=best.name;}
+    else if(!s.family.spouse3&&s.realmIndex>=4){s.family.spouse3=best.name;}
+    s.metrics.marriages++;writeLog(s,'Marriage Secured',`You and ${best.name} formalized the bond.`,'Bonds','good');
+    return;
+  }
+  if(!s.family.daoComp&&best&&best.trust>=70&&Math.random()<.24){
+    s.family.daoComp=best.name;writeLog(s,'Dao Companion Bound',`${best.name} accepted cultivation bond.`,'Bonds','good');return;
+  }
+  if(s.family.spouse&&Math.random()<.3){s.family.heirs++;writeLog(s,'Heir Born','A child enters your house.','Bonds','good');return;}
+  writeLog(s,'Bond Cultivation','You invested in courtship and alliances.','Bonds','neutral');
+}
+
+function _maxWives(s){
+  let cap=1;
+  for(const pk of s.inv.properties){const p=byKey(PROPERTIES,pk);if(p&&p.wifeCap>cap)cap=p.wifeCap;}
+  return cap;
+}
+
+function resolveBusiness(s){
+  if(!s.businesses.length){writeLog(s,'No Enterprise','Open the Business tab.','Business','neutral');return;}
+  let ts=0,tsi=0;
+  for(const biz of s.businesses){
+    const def=byKey(BUSINESSES_DEF,biz.key);if(!def)continue;
+    const profit=def.yieldSt+Math.round((s.stats.business-50)*.5)+biz.level*8;
+    const silv=def.yieldSi+Math.round((s.stats.business-50)*2)+biz.level*20;
+    if(Math.random()*100<def.risk){s.res.stones=Math.max(0,s.res.stones-Math.round(profit*.4));writeLog(s,'Business Setback',`${def.name} suffered a setback.`,'Business','bad');}
+    else{ts+=profit;tsi+=silv;biz.years++;biz.level=Math.min(10,1+Math.floor(biz.years/3));}
+  }
+  if(ts||tsi){s.res.stones+=ts;s.res.silver+=tsi;writeLog(s,'Enterprise Profits',`Returned ${ts} stones and ${tsi} silver.`,'Business','good');}
+}
+
+function resolveBeast(s){
+  if(!s.beast.activeKey){writeLog(s,'No Beast Companion','Find an egg at market or auction.','Beast','neutral');return;}
+  s.beast.loyalty=clamp(s.beast.loyalty+rand(6,14),0,100);s.beast.score++;s.stats.reputation=clamp(s.stats.reputation+2,0,100);
+  const b=byKey(BEASTS,s.beast.activeKey);
+  writeLog(s,'Beast Companion Grows',`Your ${b.name} matured and improved your aura.`,'Beast','good');
+}
+
+function resolveJob(s){
+  const job=byKey(MORTAL_JOBS,s.currentJob)||MORTAL_JOBS[0];
+  if(job.itype==='silver')s.res.silver+=job.income+rand(-10,20);
+  else s.res.stones+=job.income+rand(-2,5);
+  s.stats.social=clamp(s.stats.social+1,0,100);
+  writeLog(s,'Job Income',`Earned income as ${job.name}.`,'Work','neutral');
+}
+
+function passiveEffects(s){
+  // Sect stipend
+  if(s.sect.joined){const rank=byKey(SECT_RANKS,s.sect.rankKey)||SECT_RANKS[0];s.res.stones+=rank.stipS;s.res.silver+=rank.stipSi;}
+  // Business passive (25% when not actively running)
+  if(s.selectedAction!=='business'){
+    for(const biz of s.businesses){const def=byKey(BUSINESSES_DEF,biz.key);if(def){s.res.stones+=Math.round(def.yieldSt*.25);s.res.silver+=Math.round(def.yieldSi*.25);}}
+  }
+  // Territory privy purse
+  s.res.silver+=privy(s);
+  // Upkeep
+  const upkeep=8+s.territories.mortal*2+s.territories.spiritual*5+s.territories.immortal*15;
+  s.res.silver=Math.max(0,s.res.silver-upkeep);
+  // Debt
+  if(s.res.debt>0){const pay=Math.min(s.res.silver,Math.ceil(s.res.debt*.1));s.res.silver-=pay;s.res.debt=Math.max(0,s.res.debt-pay);}
+  // Beast loyalty drift
+  if(s.beast.activeKey)s.beast.loyalty=clamp(s.beast.loyalty+1,0,100);
+  // Instability decay
+  s.stats.instability=clamp(s.stats.instability-1,0,100);
+  // Reputation from realm
+  s.stats.reputation=clamp(s.stats.reputation+Math.round(s.realmIndex*.4),0,100);
+  // Elder master bonus: comprehension
+  if(s.sect.chosenElder)s.stats.comprehension=clamp(s.stats.comprehension+1,0,100);
+}
+
+function autoPromote(s){
+  if(!s.sect.joined)return;
+  const eligible=SECT_RANKS.filter(r=>s.realmIndex>=r.minR&&(s.res.merit||0)>=r.minM);
+  if(eligible.length){const best=eligible[eligible.length-1];if(best.key!==s.sect.rankKey){s.sect.rankKey=best.key;writeLog(s,'Sect Promotion',`Elevated to ${best.name}.`,'Sect','good');}}
+}
+
+function maybeQueueEvent(s){
+  if(s.overlay==='choice')return;
+  const pool=YEAR_EVENTS.filter(e=>e.realm===-1||s.realmIndex>=e.realm);
+  if(pool.length&&Math.random()<.28){s.overlay='choice';s.overlayData={...pick(pool)};}
+}
+
+function updateRelations(s){
+  s.relations=s.relations.map(r=>{
+    const drift=(s.selectedAction==='romance'&&['comp_lian','comp_mei','comp_su'].includes(r.key))?rand(3,8):rand(-1,3);
+    if(r.giftCooldown>0)r.giftCooldown--;
+    return{...r,bond:clamp(r.bond+drift,-100,100),trust:clamp(r.trust+rand(-1,2),-100,100)};
+  });
+}
+
+function attemptBreakthrough(s){
+  if(s.minorLevel<9){writeLog(s,'Breakthrough Blocked','Reach Minor Level 9 first.','Cultivation','bad');toast('Need Minor Level 9 first','bad');return;}
+  const profile=btProfile(s);
+  s.inv.consumables.successBoost=0;s.inv.consumables.stabilityBoost=0;
+  const prevLifespan=lifespanCap(s);
+  if(Math.random()*100<=profile.chance){
+    const nextIdx=s.realmIndex+1;
+    if(nextIdx>=REALMS.length){writeLog(s,'Supreme Peak','You have reached the apex of existence.','Cultivation','good');return;}
+    s.realmIndex=nextIdx;s.minorLevel=1;s.minorQi=0;
+    s.qiCap=getRealm(s).qiCap;s.qi=Math.round(s.qiCap*.1);
+    s.stats.instability=clamp(s.stats.instability-Math.round(profile.stability*.2),0,100);
+    s.stats.will=clamp(s.stats.will+2,0,100);s.res.insight+=25;s.res.merit+=50;
+    s.sect.favor=clamp(s.sect.favor+12,0,100);s.metrics.breakthroughs++;
+    autoPromote(s);
+    const lifespanGain=Math.max(0,lifespanCap(s)-prevLifespan);
+    s.overlay='breakthrough';s.overlayData={realm:getRealm(s).name,tier:getRealm(s).tier,lifespanGain,realmIdx:s.realmIndex};
+    writeLog(s,'Major Breakthrough!',`Entered ${getRealm(s).name}. The heavens tremble.`,'Cultivation','good');
+  } else {
+    s.stats.instability=clamp(s.stats.instability+rand(8,22),0,100);
+    s.stats.body=clamp(s.stats.body-rand(2,5),0,100);
+    s.stats.purity=clamp(s.stats.purity-rand(2,6),0,100);
+    s.qi=Math.round(s.qiCap*.4);
+    writeLog(s,'Breakthrough Recoil','The realm wall held. Begin again.','Cultivation','bad');
+    toast('Breakthrough failed — instability increased','bad');
+  }
+}
+
+function resolveYearChoice(s,optKey){
+  if(!s.overlayData)return;
+  const ev=s.overlayData;
+  const opt=ev.opts?.find(o=>o.key===optKey);if(!opt)return;
+  const eff=opt.eff||{};
+  if(eff.stones)s.res.stones=Math.max(0,s.res.stones+eff.stones);
+  if(eff.silver)s.res.silver=Math.max(0,s.res.silver+eff.silver);
+  if(eff.debt)s.res.debt+=eff.debt;
+  if(eff.insightGain)s.res.insight+=eff.insightGain;
+  if(eff.merit)s.res.merit+=eff.merit;
+  if(eff.sectFavor)s.sect.favor=clamp(s.sect.favor+(eff.sectFavor),0,100);
+  if(eff.karma)s.stats.karma=clamp(s.stats.karma+(eff.karma),-100,100);
+  if(eff.will)s.stats.will=clamp(s.stats.will+(eff.will),0,100);
+  if(eff.body)s.stats.body=clamp(s.stats.body+(eff.body),0,100);
+  if(eff.reputation)s.stats.reputation=clamp(s.stats.reputation+(eff.reputation),0,100);
+  if(eff.social)s.stats.social=clamp(s.stats.social+(eff.social),0,100);
+  if(eff.comprehension)s.stats.comprehension=clamp(s.stats.comprehension+(eff.comprehension),0,100);
+  if(eff.stability)s.stats.stability=clamp(s.stats.stability+(eff.stability),0,100);
+  if(eff.success)s.inv.consumables.successBoost=(s.inv.consumables.successBoost||0)+(eff.success);
+  if(eff.daoCompBond&&s.family.daoComp){const r=s.relations.find(x=>x.name===s.family.daoComp);if(r)r.bond=clamp(r.bond+(eff.daoCompBond),-100,100);}
+  writeLog(s,ev.title,opt.res,'Choice','good');
+  s.overlay=null;s.overlayData=null;
+}
+
+function contestTerritory(s,tier){
+  const req={mortal:4,spiritual:6,immortal:10};
+  if(s.realmIndex<req[tier]){toast(`Need Realm ${req[tier]+1}+ for ${tier} territory`,'bad');return;}
+  const myPow=militaryPower(s);
+  const defense={mortal:700,spiritual:2000,immortal:8000}[tier];
+  const chance=clamp(Math.round((myPow/defense)*50)+10,8,88);
+  // Calculate casualties (~20% base)
+  const casualtyRate=calcCasualties(s,tier);
+  // Apply casualties regardless of win/loss
+  for(const k of Object.keys(s.troops)){
+    const losses=Math.round((s.troops[k]||0)*casualtyRate);
+    s.troops[k]=Math.max(0,(s.troops[k]||0)-losses);
+  }
+  s.stats.body=clamp(s.stats.body-rand(1,3),0,100);
+  if(Math.random()*100<chance){
+    s.territories[tier]++;
+    writeLog(s,'Territory Seized',`Won ${tier} territory. Casualty rate: ${Math.round(casualtyRate*100)}%.`,'War','good');
+    toast(`⚔️ ${tier} territory captured!`,'good');
+  } else {
+    s.stats.instability=clamp(s.stats.instability+rand(3,8),0,100);
+    writeLog(s,'Campaign Failed',`Lost the battle. ${Math.round(casualtyRate*100)}% casualties.`,'War','bad');
+    toast(`Campaign failed — ${Math.round(casualtyRate*100)}% casualties`,'bad');
+  }
+}
+
+function advanceYear(s){
+  if(s.screen!=='game')return;
+  if(s.overlay==='choice')return;
+  const handlers={cultivate:resolveCultivate,study:resolveStudy,sect_duty:resolveSectDuty,explore:resolveExplore,market:resolveMarket,romance:resolveRomance,beast:resolveBeast,business:resolveBusiness,job:resolveJob};
+  handlers[s.selectedAction]?.(s);
+  passiveEffects(s);updateRelations(s);maybeQueueEvent(s);
+  s.year++;s.age++;
+  // Death check
+  const cap=lifespanCap(s);
+  if(s.age>=cap||s.stats.instability>=95){
+    writeLog(s,s.stats.instability>=95?'Qi Deviation — Death':'Lifespan Exhausted','The heavens have closed their eyes.','Legacy','bad');
+    s.screen='dead';
+  }
+  if(s.stats.instability>=80&&s.stats.instability<95)toast(`⚠ Instability critical: ${s.stats.instability}/100`,'bad');
+  if(s.minorLevel>=9&&s.screen==='game')toast('🌟 Minor Level 9! Breakthrough ready.','');
+}
+
+function activateWindfall(s){
+  if(s.windfallUsed>=2)return;
+  s.pendingWindfall=pick(WINDFALL_EVENTS);
+  s.overlay='windfall';
+}
+
+function claimWindfall(s){
+  const wf=s.pendingWindfall;if(!wf){s.overlay=null;return;}
+  s.res.stones+=wf.stones;s.res.silver+=wf.silver;s.res.insight+=wf.insight;
+  if(wf.special==='relic')s.res.relics++;
+  if(wf.special==='manual'){const el=MANUALS.filter(m=>s.realmIndex>=m.reqR&&!s.inv.manuals.includes(m.key));if(el.length)s.inv.manuals.push(pick(el).key);}
+  if(wf.special==='comprehension_boost')s.stats.comprehension=clamp(s.stats.comprehension+12,0,100);
+  if(wf.special==='physique_boost'){s.stats.purity=clamp(s.stats.purity+8,0,100);s.stats.stability=clamp(s.stats.stability+5,0,100);}
+  if(wf.special==='beast_egg'&&!s.beast.pendingEgg&&!s.beast.activeKey)s.beast.pendingEgg=true;
+  s.windfallUsed++;s.pendingWindfall=null;
+  writeLog(s,'Windfall Claimed',`${wf.name}: ${wf.desc}`,'Fortune','good');
+  toast(`✨ ${wf.name}`,'great',3000);
+  s.overlay=null;
+}
+
+function getShopItems(s){
+  const tier=Math.min(4,Math.floor(s.realmIndex/3));
+  const items=SHOP_ITEMS.filter(i=>i.tier<=tier);
+  const seed=s.year*37+s.realmIndex*13;
+  return [...items].sort((a,b)=>((seed*(a.key.charCodeAt(0)||1))%97)-((seed*(b.key.charCodeAt(0)||1))%97)).slice(0,10);
+}
+
+function buyShopItem(s,key){
+  const item=getShopItems(s).find(i=>i.key===key);if(!item)return;
+  const cSt=item.costSt||0,cSi=item.costSi||0;
+  if(cSt&&s.res.stones<cSt){toast(`Need ${cSt}💎`,'bad');return;}
+  if(cSi&&s.res.silver<cSi){toast(`Need ${cSi}🪙`,'bad');return;}
+  if(cSt)s.res.stones-=cSt;if(cSi)s.res.silver-=cSi;
+  const eff=item.eff||{};
+  if(eff.qiBoost)s.minorQi=(s.minorQi||0)+eff.qiBoost;
+  if(eff.statBoost)Object.entries(eff.statBoost).forEach(([k,v])=>{if(k in s.stats)s.stats[k]=clamp(s.stats[k]+v,0,100);});
+  if(eff.successBoost)s.inv.consumables.successBoost=(s.inv.consumables.successBoost||0)+eff.successBoost;
+  if(eff.stabilityBoost)s.inv.consumables.stabilityBoost=(s.inv.consumables.stabilityBoost||0)+eff.stabilityBoost;
+  if(eff.insightBoost)s.res.insight+=eff.insightBoost;
+  if(eff.purityBoost)s.stats.purity=clamp(s.stats.purity+eff.purityBoost,0,100);
+  if(eff.qiCapBoost)s.qiCap+=eff.qiCapBoost;
+  if(eff.immortalJade)s.res.immortalJade+=eff.immortalJade;
+  if(eff.beastEgg&&!s.beast.activeKey&&!s.beast.pendingEgg){s.beast.pendingEgg=true;s.beast.pendingTier=eff.rare?'rare':'common';toast('🥚 Beast egg acquired!','good');}
+  if(eff.alchemyBoost)s.inv.consumables.alchemyBoost=(s.inv.consumables.alchemyBoost||0)+eff.alchemyBoost;
+  writeLog(s,'Market Purchase',`${item.name} secured.`,'Market','good');
+  toast(`✅ ${item.name} purchased`,'good');
+}
+
+function launchBusiness(s,key){
+  const def=byKey(BUSINESSES_DEF,key);if(!def)return;
+  if(s.businesses.find(b=>b.key===key)){toast('Already active','bad');return;}
+  if(s.realmIndex<(def.reqR||0)){toast(`Need Realm ${def.reqR+1}+`,'bad');return;}
+  if(def.costSt&&s.res.stones<def.costSt){toast(`Need ${def.costSt}💎`,'bad');return;}
+  if(def.costSi&&s.res.silver<def.costSi){toast(`Need ${def.costSi}🪙`,'bad');return;}
+  if(def.costSt)s.res.stones-=def.costSt;if(def.costSi)s.res.silver-=def.costSi;
+  s.businesses.push({key,years:0,level:1});
+  writeLog(s,'Enterprise Founded',`${def.name} established.`,'Business','good');
+  toast(`🏢 ${def.name} founded`,'good');
+}
+
+function startAuction(s,lotKey){
+  const lot=byKey(AUCTION_POOL,lotKey);if(!lot)return;
+  if(lot.reqR&&s.realmIndex<lot.reqR){toast(`Need Realm ${lot.reqR+1}+`,'bad');return;}
+  const startP=lot.baseP+rand(0,Math.round(lot.baseP*.2));
+  const hasOpp=Math.random()<.72;
+  s.auction={active:true,lot,playerBid:startP,oppBid:hasOpp?Math.round(startP*.85):0,oppMax:hasOpp?Math.round(lot.baseP*(1.2+Math.random()*.9)):0,oppActive:hasOpp,resolved:false,msg:''};
+  s.overlay='auction';
+}
+
+function raiseBid(s,amount){
+  const a=s.auction;if(!a||a.resolved)return;
+  a.playerBid+=amount;
+  if(a.oppActive&&a.oppBid<a.oppMax){const oResp=a.playerBid+rand(5,30);if(oResp<=a.oppMax){a.oppBid=oResp;a.msg=`Opponent raised to ${oResp}💎.`;}else{a.oppBid=a.oppMax;a.msg=`Opponent at limit (${a.oppMax}💎).`;}}
+  else if(a.oppActive){a.msg='Opponent dropped out.';}
+}
+
+function commitBid(s){
+  const a=s.auction;if(!a||a.resolved)return;
+  if(s.res.stones<a.playerBid){toast(`Need ${a.playerBid}💎`,'bad');s.overlay=null;return;}
+  const won=!a.oppActive||a.playerBid>a.oppBid;
+  if(won){
+    s.res.stones-=a.playerBid;const lot=a.lot;
+    if(lot.type==='manual'&&lot.manKey&&!s.inv.manuals.includes(lot.manKey))s.inv.manuals.push(lot.manKey);
+    if(lot.type==='artifact'&&lot.aKey&&!s.inv.artifacts.includes(lot.aKey))s.inv.artifacts.push(lot.aKey);
+    if(lot.type==='beast_egg'&&!s.beast.activeKey&&!s.beast.pendingEgg){s.beast.pendingEgg=true;s.beast.pendingTier=lot.key.includes('legend')?'legendary':'rare';}
+    if(lot.type==='territory')s.territories.mortal++;
+    if(lot.type==='consumable'&&lot.eff){if(lot.eff.successBoost)s.inv.consumables.successBoost=(s.inv.consumables.successBoost||0)+lot.eff.successBoost;if(lot.eff.alchemyBoost)s.inv.consumables.alchemyBoost=(s.inv.consumables.alchemyBoost||0)+lot.eff.alchemyBoost;}
+    if(lot.type==='resource'&&lot.eff){if(lot.eff.herbs)s.res.herbs+=lot.eff.herbs;}
+    s.metrics.auctions++;
+    writeLog(s,'Auction Victory',`${lot.name} secured for ${a.playerBid} stones.`,'Auction','good');
+    toast(`🔨 Won! ${lot.name}`,'great',3000);
+    s.overlay=null;
+  } else {
+    writeLog(s,'Outbid',`Outbid on ${a.lot.name}.`,'Auction','bad');toast('Outbid — opportunity lost','bad');s.overlay=null;
+  }
+  a.resolved=true;
+}
+
+function hatchBeast(s,key){
+  const b=byKey(BEASTS,key);if(!b)return;
+  s.beast.activeKey=key;s.beast.loyalty=50;s.beast.score=1;s.beast.pendingEgg=false;
+  Object.entries(b.bonus).forEach(([k,v])=>{if(k in s.stats)s.stats[k]=clamp(s.stats[k]+Math.round(v*.4),0,100);});
+  writeLog(s,'Beast Hatched!',`${b.name} bonded with your bloodline.`,'Beast','good');
+  toast(`🐉 ${b.name} hatched and bonded!`,'great',4000);
+  s.overlay=null;
+}
+
+// NPC interaction with bond system
+function talkNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  r.bond=clamp(r.bond+3,-100,100);r.trust=clamp(r.trust+2,-100,100);
+  writeLog(s,'Conversation',`Meaningful exchange with ${r.name}.`,'Bonds','neutral');
+  toast(`💬 Talked with ${r.name}. Bond +3`,'',2000);
+  s.overlay=null;s.overlayData=null;
+}
+
+function giftNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  if(s.res.stones<10){toast('Need 10💎','bad');return;}
+  s.res.stones-=10;
+  r.bond=clamp(r.bond+8,-100,100);r.trust=clamp(r.trust+5,-100,100);r.giftCooldown=2;
+  toast(`🎁 Gift to ${r.name}. Bond +8`,'good');
+  s.overlay=null;
+}
+
+function outingNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  if(s.res.silver<50){toast('Need 50🪙','bad');return;}
+  s.res.silver-=50;
+  r.bond=clamp(r.bond+12,-100,100);r.trust=clamp(r.trust+8,-100,100);
+  toast(`🍵 Outing with ${r.name}. Bond +12`,'good');
+  s.overlay=null;
+}
+
+function proposeToNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  if(r.bond<40){toast('Bond not deep enough (need 40+)','bad');return;}
+  const propCount=[s.family.spouse,s.family.spouse2,s.family.spouse3].filter(Boolean).length;
+  const maxW=_maxWives(s);
+  if(propCount>=maxW){toast(`Need property for more wives (max ${maxW} with current properties)`,'bad');return;}
+  if(!s.family.spouse)s.family.spouse=r.name;
+  else if(!s.family.spouse2)s.family.spouse2=r.name;
+  else if(!s.family.spouse3)s.family.spouse3=r.name;
+  s.metrics.marriages++;writeLog(s,'Proposal Accepted',`${r.name} accepted.`,'Bonds','good');
+  toast(`💍 ${r.name} accepted!`,'great',4000);s.overlay=null;
+}
+
+function daoBondNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  if(r.trust<50){toast('Need trust 50+ for Dao Bond','bad');return;}
+  if(s.family.daoComp){toast('Already have Dao Companion','bad');return;}
+  s.family.daoComp=r.name;writeLog(s,'Dao Bond Forged',`${r.name} accepted eternal bond.`,'Bonds','good');
+  toast(`☯️ ${r.name} — Dao Bond forged!`,'great',4000);s.overlay=null;
+}
+
+function challengeNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  if(Math.random()<.5+s.stats.will*.003){r.bond=clamp(r.bond-12,-100,100);s.stats.reputation=clamp(s.stats.reputation+9,0,100);writeLog(s,'Duel Victory','Victory.','Combat','good');toast('⚔️ Duel won!','good');}
+  else{s.stats.body=clamp(s.stats.body-5,0,100);s.stats.instability=clamp(s.stats.instability+8,0,100);writeLog(s,'Duel Defeat','Defeated.','Combat','bad');toast('💔 Lost the duel','bad');}
+  s.overlay=null;
+}
+
+function romanceNPC(s,relKey){
+  const r=s.relations.find(x=>x.key===relKey);if(!r)return;
+  const pool=RELATION_POOL.find(p=>p.key===relKey);
+  if(!pool?.romanceable){toast('This person is not interested','bad');return;}
+  r.bond=clamp(r.bond+15,-100,100);r.trust=clamp(r.trust+10,-100,100);
+  toast(`💕 Romance: ${r.name}. Bond +15`,'good');s.overlay=null;
+}
+
+// Sect elder interaction
+function talkElder(s,elderName){
+  if(!s.sect.elderBondsMap)s.sect.elderBondsMap={};
+  const cur=s.sect.elderBondsMap[elderName]||0;
+  s.sect.elderBondsMap[elderName]=cur+5;
+  s.res.merit+=3;
+  toast(`💬 Talked with ${elderName}. Bond +5, Merit +3`,'good');
+  // Add to relations if not there
+  if(!s.relations.find(r=>r.name===elderName)){
+    s.relations.push({key:'elder_'+elderName.replace(/\s/g,'_'),name:elderName,role:'Sect Elder',desire:'See the sect prosper.',icon:'🧙',bond:cur+5,trust:20,giftCooldown:0,faction:'sect',giftable:true,romanceable:false});
+  } else {
+    const rel=s.relations.find(r=>r.name===elderName);rel.bond=clamp(rel.bond+5,-100,100);
+  }
+}
+
+function giftElder(s,elderName){
+  if(s.res.stones<15){toast('Need 15💎','bad');return;}
+  s.res.stones-=15;
+  if(!s.sect.elderBondsMap)s.sect.elderBondsMap={};
+  s.sect.elderBondsMap[elderName]=(s.sect.elderBondsMap[elderName]||0)+10;
+  s.sect.favor=clamp(s.sect.favor+3,0,100);
+  toast(`🎁 Gift to ${elderName}. Bond +10, Favor +3`,'good');
+  const rel=s.relations.find(r=>r.name===elderName);if(rel)rel.bond=clamp(rel.bond+10,-100,100);
+}
+
+function chooseElder(s,elderName){
+  s.sect.chosenElder=elderName;
+  s.stats.comprehension=clamp(s.stats.comprehension+5,0,100);
+  writeLog(s,'Master Chosen',`${elderName} accepted you as a disciple.`,'Sect','good');
+  toast(`🧙 ${elderName} is now your master!`,'great',4000);
+  s.overlay=null;
+}
+
+function chooseBeastEgg(s,beastKey){
+  // Called when player joins sect — choose from 3 common eggs
+  hatchBeast(s,beastKey);
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════════════
+function slab(txt){return`<div class="slabel">${txt}</div>`;}
+function notice(txt,cls=''){return`<div class="notice ${cls}">${txt}</div>`;}
+
+function mkRow({icon='•',title,sub='',value='',action='',cls='',}){
+  return`<button class="row ${cls}" ${action}>
+    <div class="row-ico">${icon}</div>
+    <div class="row-txt"><div class="row-title">${title}</div>${sub?`<div class="row-sub">${sub}</div>`:''}</div>
+    ${value?`<div class="row-val">${value}</div>`:`<div class="row-arr">›</div>`}
+  </button>`;
+}
+
+function hbar(title,back='close-subscreen',color='var(--text2)',right=''){
+  return`<div class="hbar"><button class="hbar-back" data-action="${back}">‹</button><div class="hbar-title" style="color:${color}">${title}</div><div class="hbar-r">${right}</div></div>`;
+}
+
+function renderTopStrip(s){
+  const r=getRealm(s);const phy=getPhy(s);
+  const isCult=s.selectedAction==='cultivate';
+  return`<div class="top">
+    <div class="avatar" data-action="open-profile">${phy.icon}</div>
+    <div class="profile-info">
+      <div class="p-name">${s.name} · Age ${s.age}</div>
+      <div class="p-sub" style="color:${r.color}">${r.name} Lv.${s.minorLevel}/9</div>
+    </div>
+    <div class="p-res">
+      <div class="res-row"><span>💎</span><span class="res-val">${fmt(s.res.stones)}</span><span class="res-lbl">stones</span></div>
+      <div class="res-row"><span>🪙</span><span class="res-val">${fmt(s.res.silver)}</span><span class="res-lbl">silver</span></div>
+      ${s.res.immortalJade>0?`<div class="res-row"><span>✨</span><span class="res-val">${s.res.immortalJade}</span><span class="res-lbl">jade</span></div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderQiBar(s){
+  const r=getRealm(s);const pct=Math.round((s.qi/s.qiCap)*100);
+  const pips=Array.from({length:9},(_,i)=>{
+    const on=i<s.minorLevel-1;const now=i===s.minorLevel-1;
+    return`<div class="qi-pip ${on?'on':now?'now':''}"></div>`;
+  }).join('');
+  return`<div class="qi-bar-wrap">
+    <div class="qi-meta"><span style="color:${r.color}">${r.short||r.name} · Minor ${s.minorLevel}/9</span><span>Yr ${s.year} · Age ${s.age}</span></div>
+    <div class="qi-track"><div class="qi-fill" style="width:${pct}%;background:linear-gradient(90deg,${r.color}88,${r.color})"></div></div>
+    <div class="qi-pips">${pips}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// TAB RENDERERS
+// ═══════════════════════════════════════════════════
+function renderChronicleTab(s){
+  const canBt=s.minorLevel>=9;const profile=btProfile(s);const wfAvail=s.windfallUsed<2;
+  let h=renderTopStrip(s)+renderQiBar(s);
+  h+=`<div class="scroll">`;
+  // Windfall
+  if(wfAvail)h+=`<div class="windfall" data-action="activate-windfall"><div class="windfall-t">✨ Fortuitous Encounter Available</div><div class="windfall-s">Tap to claim a windfall blessing (${2-s.windfallUsed} left)</div></div>`;
+  // Pending egg
+  if(s.beast.pendingEgg)h+=`<div class="windfall" data-action="open-hatch" style="border-color:rgba(255,215,0,.5)"><div class="windfall-t">🥚 Beast Egg Ready to Hatch!</div><div class="windfall-s">Tap to choose your companion bloodline</div></div>`;
+  // Instability warning
+  if(s.stats.instability>=70)h+=`<div class="notice bad">⚠️ Qi Instability at ${s.stats.instability}/100. Danger of qi deviation.</div>`;
+  // Latest entry
+  const e=s.latestEntry;
+  h+=slab('This Year');
+  h+=mkRow({icon:'📜',title:e.title,sub:(e.text||'').substring(0,90),value:e.category,cls:e.tone==='bad'?'red':e.tone==='good'?'jade':'',action:'data-action="open-history"'});
+  // Cultivation
+  h+=slab('Cultivation');
+  h+=mkRow({icon:'🧘',title:'Advance Year',sub:`Action: ${s.selectedAction} · Speed: ${cultivSpeed(s)} qi/yr`,action:'data-action="advance-year"',value:'⏭'});
+  h+=mkRow({icon:'⚡',title:canBt?'🌟 Breakthrough Ready!':'Cultivating…',sub:`${profile.chance}% success · Stability ${profile.stability}% · Minor ${s.minorLevel}/9`,cls:canBt?'jade':'',action:canBt?'data-action="attempt-breakthrough"':'',value:canBt?'BREAK!':s.minorLevel+'/9'});
+  // Beast
+  if(s.beast.activeKey){const b=byKey(BEASTS,s.beast.activeKey);h+=slab('Beast Companion');h+=mkRow({icon:b.icon,title:b.name,sub:`${b.tier} · Loyalty ${s.beast.loyalty} · Score ${s.beast.score}`,action:'data-open="beast-detail"'});}
+  // Quick nav
+  h+=slab('Features');
+  h+=mkRow({icon:'🏪',title:'Marketplace',sub:'Buy pills, artifacts, beast eggs',action:'data-open="marketplace"'});
+  h+=mkRow({icon:'🏦',title:'Grand Auction',sub:'Bid on rare lots',action:'data-open="auction"'});
+  h+=mkRow({icon:'🏢',title:'Enterprise',sub:`${s.businesses.length} business(es) active`,action:'data-open="business"'});
+  h+=mkRow({icon:'📦',title:'Inventory & Power',sub:`${s.inv.artifacts.length} artifacts · Power: ${fmt(powerRating(s))}`,action:'data-open="inventory"'});
+  h+=`</div>`;return h;
+}
+
+function renderPathTab(s){
+  const profile=btProfile(s);const loc=byKey(LOCATIONS,s.locationKey);
+  const actions=[
+    {key:'cultivate',icon:'🧘',name:'Closed-Door Cultivation',desc:`+${cultivSpeed(s)} qi/yr · Physique ×${getPhy(s).mult}`},
+    {key:'study',   icon:'📚',name:'Study Scripture',          desc:'Gain insight, discover manuals'},
+    {key:'sect_duty',icon:'⛩',name:'Sect Duty',               desc:s.sect.joined?'Merit & favor':'Join a sect first'},
+    {key:'explore', icon:loc.icon,name:`Explore — ${loc.name}`,desc:`Danger: ${loc.danger} · Wealth: ${loc.wealth}`},
+    {key:'market',  icon:'🏮',name:'Trade at Market',         desc:'Convert resources to silver'},
+    {key:'romance', icon:'💕',name:'Pursue Bonds',            desc:'Build relationships, seek marriage'},
+    {key:'beast',   icon:'🐲',name:'Raise Divine Beast',      desc:s.beast.activeKey?`${byKey(BEASTS,s.beast.activeKey)?.name} · Loyalty ${s.beast.loyalty}`:'Get an egg first'},
+    {key:'business',icon:'💰',name:'Manage Enterprise',       desc:`${s.businesses.length} enterprise(s)`},
+    {key:'job',     icon:'💼',name:'Work Your Occupation',    desc:`${byKey(MORTAL_JOBS,s.currentJob)?.name||'None'} · Focused income`},
+  ];
+  let h=renderTopStrip(s)+renderQiBar(s);
+  h+=`<div class="scroll">`;
+  h+=slab("Choose This Year's Action");
+  for(const a of actions){
+    const locked=(a.key==='sect_duty'&&!s.sect.joined)||(a.key==='beast'&&!s.beast.activeKey);
+    h+=mkRow({icon:a.icon,title:a.name,sub:a.desc,cls:s.selectedAction===a.key?'gold':locked?'dim':'',action:`data-select-action="${a.key}"`});
+  }
+  h+=slab('Breakthrough');
+  const consumed=[];
+  if(s.inv.consumables.successBoost)consumed.push(`+${s.inv.consumables.successBoost}% success`);
+  if(s.inv.consumables.stabilityBoost)consumed.push(`+${s.inv.consumables.stabilityBoost} stability`);
+  if(consumed.length)h+=`<div class="notice good">🎯 Booosts ready: ${consumed.join(' · ')}</div>`;
+  h+=mkRow({icon:'🌟',title:`Breakthrough — ${profile.chance}% Success`,sub:`Stability: ${profile.stability}% · Fatality: ${profile.fatality}% · Minor ${s.minorLevel}/9`,action:'data-action="attempt-breakthrough"',value:s.minorLevel>=9?'BREAK!':'Locked',cls:s.minorLevel>=9?'jade':'dim'});
+  h+=slab('Divine Beast');
+  if(s.beast.activeKey){
+    const b=byKey(BEASTS,s.beast.activeKey);
+    h+=mkRow({icon:b.icon,title:b.name,sub:`${b.tier} · Loyalty ${s.beast.loyalty}/100 · Score ${s.beast.score}`,action:'data-open="beast-detail"',value:'Active'});
+    h+=mkRow({icon:'🔄',title:'Release Beast',sub:'Release for a better one later (consequences)',action:'data-action="release-beast"',cls:'red',value:'Release'});
+  } else {
+    h+=notice('No beast companion. Get a beast egg from Market, Auction, or Exploration.');
+  }
+  h+=slab('Quick Shop');
+  const items=getShopItems(s).slice(0,4);
+  for(const item of items){
+    const cost=item.costSt?`${item.costSt}💎`:`${item.costSi}🪙`;
+    const can=item.costSt?s.res.stones>=item.costSt:s.res.silver>=item.costSi;
+    h+=mkRow({icon:item.icon,title:item.name,sub:item.desc,value:cost,action:can?`data-buy-item="${item.key}"`:'' ,cls:can?'':'dim'});
+  }
+  h+=mkRow({icon:'🏪',title:'Full Marketplace',sub:'All realm-appropriate items',action:'data-open="marketplace"'});
+  h+=`</div>`;return h;
+}
+
+function renderWorldTab(s){
+  const loc=byKey(LOCATIONS,s.locationKey);
+  let h=renderTopStrip(s)+renderQiBar(s);
+  h+=`<div class="scroll">`;
+  h+=slab('Current Location');
+  h+=`<div class="card warn"><div class="card-t">${loc.icon} ${loc.name}</div><div class="card-s">${loc.type} · Danger: ${loc.danger} · Wealth: ${loc.wealth}<br>${loc.desc}</div></div>`;
+  h+=slab('Mortal World');
+  for(const l of LOCATIONS.filter(x=>x.stage===0))h+=mkRow({icon:l.icon,title:l.name,sub:`${l.type} · Wealth ${l.wealth} · Danger ${l.danger}`,cls:s.locationKey===l.key?'gold':'',action:`data-travel="${l.key}"`,value:s.locationKey===l.key?'Here':'Move'});
+  if(s.realmIndex>=6){h+=slab('Spirit World');for(const l of LOCATIONS.filter(x=>x.stage===1))h+=mkRow({icon:l.icon,title:l.name,sub:`${l.type} · Wealth ${l.wealth} · Danger ${l.danger}`,cls:s.locationKey===l.key?'gold':'',action:`data-travel="${l.key}"`,value:s.locationKey===l.key?'Here':'Travel'});}
+  else{h+=slab('Spirit World');h+=notice('Requires Void Amalgamation (Realm 7+).','warn');}
+  if(s.realmIndex>=10){h+=slab('Immortal Realm');for(const l of LOCATIONS.filter(x=>x.stage===2))h+=mkRow({icon:l.icon,title:l.name,sub:`${l.type} · Wealth ${l.wealth}`,cls:s.locationKey===l.key?'gold':'',action:`data-travel="${l.key}"`,value:s.locationKey===l.key?'Here':'Ascend'});}
+  else{h+=slab('Immortal Realm');h+=notice('Requires Loose Immortal (Realm 11+).','warn');}
+  h+=slab('Territory Holdings');
+  h+=`<div class="terr-bar">
+    <div class="terr-cell"><div class="terr-num" style="color:#c8a040">${s.territories.mortal}</div><div class="terr-lbl">🏡 Mortal</div><div style="font-size:10px;color:var(--text3);margin-top:4px">+${s.territories.mortal*50}🪙/yr</div></div>
+    <div class="terr-cell"><div class="terr-num" style="color:#8058e8">${s.territories.spiritual}</div><div class="terr-lbl">🌌 Spirit</div><div style="font-size:10px;color:var(--text3);margin-top:4px">+${s.territories.spiritual*200}🪙/yr</div></div>
+    <div class="terr-cell"><div class="terr-num" style="color:#60ffcc">${s.territories.immortal}</div><div class="terr-lbl">☁️ Immortal</div><div style="font-size:10px;color:var(--text3);margin-top:4px">+${s.territories.immortal*800}🪙/yr</div></div>
+  </div>`;
+  h+=notice(`Privy Purse: ${privy(s)}🪙/yr total · Scales with territory tier`,'');
+  h+=slab('Military Power');
+  h+=`<div class="card"><div class="card-t">⚡ Total Power: ${fmt(militaryPower(s))}</div><div class="card-s">Troops: ${fmt(totalTroops(s))} · Generals: ${totalGenerals(s)} · Casualty base: ~20%</div></div>`;
+  h+=mkRow({icon:'⚔️',title:'Contest Mortal Territory',sub:`Need Realm 5+ · Power ${fmt(militaryPower(s))} · ~${Math.round(calcCasualties(s,'mortal')*100)}% casualties`,action:'data-contest="mortal"',value:'+1',cls:s.realmIndex>=4?'':'dim'});
+  if(s.realmIndex>=6)h+=mkRow({icon:'🌌',title:'Contest Spiritual Territory',sub:`Need Realm 7+ · ~${Math.round(calcCasualties(s,'spiritual')*100)}% casualties`,action:'data-contest="spiritual"',value:'+1'});
+  if(s.realmIndex>=10)h+=mkRow({icon:'☁️',title:'Contest Immortal Territory',sub:`Need Realm 11+ · ~${Math.round(calcCasualties(s,'immortal')*100)}% casualties`,action:'data-contest="immortal"',value:'+1'});
+  h+=mkRow({icon:'🪖',title:'Recruit Troops',sub:'Hire soldiers and generals',action:'data-open="military"'});
+  h+=`</div>`;return h;
+}
+
+function renderSectTab(s){
+  let h=renderTopStrip(s)+renderQiBar(s);
+  h+=`<div class="scroll">`;
+  if(!s.sect.joined){
+    h+=notice('You are a Wandering Cultivator. No sect benefits or obligations.');
+    h+=slab('Join a Sect');
+    for(const sec of SECTS)h+=mkRow({icon:sec.icon,title:sec.name,sub:`${sec.doctrine} · ${sec.tier} Tier · ${sec.focus}`,action:`data-join-sect="${sec.key}"`,value:'Join'});
+    h+=`</div>`;return h;
+  }
+  const sec=byKey(SECTS,s.sect.key);
+  const rank=byKey(SECT_RANKS,s.sect.rankKey)||SECT_RANKS[0];
+  h+=`<div class="card warn" style="margin-top:10px"><div class="card-t">${sec.icon} ${sec.name}</div><div class="card-s">${sec.doctrine} · ${sec.tier} Tier · ${sec.focus}</div></div>`;
+  h+=slab('Standing');
+  h+=mkRow({icon:'🏅',title:`${rank.name} — Rank`,sub:rank.priv,value:`${rank.stipS}💎+${rank.stipSi}🪙/yr`});
+  h+=mkRow({icon:'🏆',title:'Merit Points',sub:'Total contribution',value:`${s.res.merit}`});
+  h+=mkRow({icon:'💚',title:'Sect Favor',sub:'Elder backing level',value:`${s.sect.favor}/100`});
+  h+=slab('Rank Progression');
+  h+=`<div class="rank-strip">${SECT_RANKS.map(r=>{const done=s.realmIndex>=r.minR&&(s.res.merit||0)>=r.minM;const cur=r.key===s.sect.rankKey;return`<div class="rank-pip ${cur?'cur':done?'done':''}">${cur?'★ ':''} ${r.name}</div>`}).join('')}</div>`;
+
+  // Elder Master System
+  h+=slab('Sect Elders');
+  if(s.sect.chosenElder){
+    h+=`<div class="card good"><div class="card-t">🧙 Master: ${s.sect.chosenElder}</div><div class="card-s">Personal teachings. +3 cultivation speed/yr. +1 comprehension/yr.</div></div>`;
+  } else {
+    h+=notice('Choose an elder as your master to receive personal cultivation teachings.','warn');
+    h+=mkRow({icon:'🧙',title:'Choose Your Master Elder',sub:'Select one of the 5 sect elders as personal master',action:'data-open="choose-elder"',value:'Select'});
+  }
+  h+=slab('Sect Elders — Interact');
+  for(const elder of (sec.elders||[])){
+    const bond=s.sect.elderBondsMap?.[elder]||0;
+    h+=`<div class="npc-card">
+      <div class="npc-head">
+        <div class="npc-portrait">🧙</div>
+        <div class="npc-info"><div class="npc-name">${elder}</div><div class="npc-role">Sect Elder</div></div>
+        <div class="npc-bond" style="color:var(--jade2)">${bond>0?'+':''}${bond}</div>
+      </div>
+      <div class="npc-acts">
+        <button class="npc-act" data-elder-talk="${elder}">💬 Talk</button>
+        <button class="npc-act jade" data-elder-gift="${elder}">🎁 Gift (15💎)</button>
+        ${s.sect.chosenElder!==elder?`<button class="npc-act gold" data-choose-elder="${elder}">🎓 Choose as Master</button>`:`<span style="font-size:10px;color:var(--jade2);padding:4px 8px">★ Your Master</span>`}
+      </div>
+    </div>`;
+  }
+  h+=slab('Sect Actions');
+  h+=mkRow({icon:'📜',title:'Submit Sect Mission',sub:'Earn merit and favor',action:'data-sect-action="assign"',value:'+Merit'});
+  h+=mkRow({icon:'💎',title:'Donate to Treasury',sub:'100💎 → +15 merit, +8 favor',action:'data-sect-action="donate"',value:'100💎'});
+  h+=mkRow({icon:'😈',title:'Scheme Against Rival',sub:'Risk: rivalry +15 or merit +25',action:'data-sect-action="scheme"',value:'Scheme'});
+  h+=`</div>`;return h;
+}
+
+function renderBondsTab(s){
+  let h=renderTopStrip(s)+renderQiBar(s);
+  h+=`<div class="scroll">`;
+  h+=slab('Relationships');
+  // Compact NPC rows with interaction buttons
+  for(const rel of s.relations){
+    const pool=RELATION_POOL.find(p=>p.key===rel.key);
+    const isPos=rel.bond>=0;
+    const isSpouse=[s.family.spouse,s.family.spouse2,s.family.spouse3].includes(rel.name);
+    const isDaoComp=s.family.daoComp===rel.name;
+    const canRomance=pool?.romanceable&&!isSpouse;
+    const canMarry=pool?.romanceable&&!isSpouse&&rel.bond>=40;
+    const canDaoC=pool?.romanceable&&!isDaoComp&&!s.family.daoComp&&rel.trust>=50;
+    h+=`<div class="npc-card">
+      <div class="npc-head">
+        <div class="npc-portrait">${rel.icon}</div>
+        <div class="npc-info">
+          <div class="npc-name" style="font-size:12px">${rel.name}${isSpouse?' 💍':''}${isDaoComp?' ☯️':''}</div>
+          <div class="npc-role">${rel.role}</div>
+          <div class="npc-desire">"${rel.desire}"</div>
+        </div>
+        <div class="npc-bond" style="color:${isPos?'var(--jade2)':'var(--scarlet2)'}">${rel.bond>0?'+':''}${rel.bond}</div>
+      </div>
+      <div class="bond-bar"><div class="bond-fill ${isPos?'pos':'neg'}" style="width:${Math.min(Math.abs(rel.bond),100)}%"></div></div>
+      <div class="npc-acts">
+        <button class="npc-act" data-talk-rel="${rel.key}">💬 Talk</button>
+        ${pool?.giftable&&!rel.giftCooldown?`<button class="npc-act jade" data-gift-rel="${rel.key}">🎁 Gift (10💎)</button>`:''}
+        ${!isSpouse&&s.res.silver>=50?`<button class="npc-act" data-outing-rel="${rel.key}">🍵 Outing (50🪙)</button>`:''}
+        ${canRomance?`<button class="npc-act gold" data-romance-rel="${rel.key}">💕 Romance</button>`:''}
+        ${canMarry?`<button class="npc-act gold" data-propose-rel="${rel.key}">💍 Propose</button>`:''}
+        ${canDaoC?`<button class="npc-act gold" data-dao-bond="${rel.key}">☯️ Dao Bond</button>`:''}
+        ${rel.key==='rival'||rel.key==='dao_enemy'?`<button class="npc-act red" data-challenge-rel="${rel.key}">⚔️ Challenge</button>`:''}
+      </div>
+    </div>`;
+  }
+  h+=slab('House');
+  h+=mkRow({icon:'💍',title:s.family.spouse||'No Primary Wife',sub:`Marriage: ${_maxWives(s)} wife capacity (buy properties for more)`,value:s.family.spouse?'Married':'Pursue Romance'});
+  if(s.family.spouse2)h+=mkRow({icon:'💍',title:s.family.spouse2,sub:'Second Wife',value:'Married'});
+  if(s.family.spouse3)h+=mkRow({icon:'💍',title:s.family.spouse3,sub:'Third Wife',value:'Married'});
+  h+=mkRow({icon:'☯️',title:s.family.daoComp||'No Dao Companion',sub:'+8% breakthrough when bonded',value:s.family.daoComp?'Bonded':'-'});
+  h+=mkRow({icon:'👶',title:`Heirs: ${s.family.heirs}`,sub:'Bloodline successors',value:s.family.clanTier});
+  if(s.family.concubines&&s.family.concubines.length){h+=slab('Concubines');for(const c of s.family.concubines)h+=mkRow({icon:'🌺',title:c,sub:'Secondary consort',value:'Bound'});}
+  h+=slab('Occupation');
+  h+=mkRow({icon:'💼',title:`Current: ${byKey(MORTAL_JOBS,s.currentJob)?.name||'None'}`,sub:'Change occupation for different income',action:'data-action="open-jobmenu"',value:'Change'});
+  h+=`</div>`;return h;
+}
+
+// ─── SUBSCREENS ──────────────────────────────────
+function renderMarketplace(s){
+  const items=getShopItems(s);
+  let h=hbar('MARKETPLACE','close-subscreen','var(--jade2)');
+  h+=`<div class="scroll">`;
+  h+=notice('Items rotate each year · Tier scales with realm.');
+  h+=slab('Cultivation Supplies');
+  for(const item of items){
+    const cSt=item.costSt||0,cSi=item.costSi||0;
+    const cost=cSt?`${cSt}💎`:`${cSi}🪙`;
+    const can=cSt?s.res.stones>=cSt:s.res.silver>=cSi;
+    h+=mkRow({icon:item.icon,title:item.name,sub:item.desc,value:cost,cls:can?'':'dim',action:can?`data-buy-item="${item.key}"`:''});
+  }
+  h+=`</div>`;return h;
+}
+
+function renderAuction(s){
+  let h=hbar('GRAND AUCTION HALL','close-subscreen','var(--gold2)');
+  h+=`<div class="scroll">`;
+  h+=notice('Bid on rare manuals, beast eggs, and ancient relics. Opponents may outbid you.','warn');
+  const owned=new Set([...s.inv.manuals,...s.inv.artifacts]);
+  const pool=AUCTION_POOL.filter(l=>{
+    if(l.manKey&&owned.has(l.manKey))return false;
+    if(l.aKey&&owned.has(l.aKey))return false;
+    if(l.reqR&&s.realmIndex<l.reqR)return false;
+    return true;
+  }).sort(()=>Math.random()-.5).slice(0,6);
+  if(!pool.length)h+=notice('No lots available at your realm. Advance higher.');
+  for(const lot of pool)h+=mkRow({icon:lot.icon,title:lot.name,sub:lot.desc,value:`From ${lot.baseP}💎`,action:`data-start-auction="${lot.key}"`});
+  h+=`</div>`;return h;
+}
+
+function renderBusiness(s){
+  let h=hbar('ENTERPRISE','close-subscreen','var(--jade2)');
+  h+=`<div class="scroll">`;
+  if(s.businesses.length){
+    h+=slab('Active Enterprises');
+    for(const biz of s.businesses){const def=byKey(BUSINESSES_DEF,biz.key);if(!def)continue;h+=mkRow({icon:def.icon,title:def.name,sub:`Lvl ${biz.level} · Yr ${biz.years} · Active: ${def.yieldSt}💎/yr · Passive: ${Math.round(def.yieldSt*.25)}💎/yr`,value:def.yieldSt+'💎/yr'});}
+  }
+  h+=slab('Start New Enterprise');
+  h+=`<div class="biz-grid">`;
+  for(const def of BUSINESSES_DEF){
+    const owned=!!s.businesses.find(b=>b.key===def.key);
+    const locked=s.realmIndex<(def.reqR||0);
+    const cost=def.costSt?`${def.costSt}💎`:def.costSi?`${def.costSi}🪙`:'Free';
+    h+=`<div class="biz-card ${owned?'owned':locked?'dim':''}" ${owned||locked?'':`data-launch-biz="${def.key}"`}>
+      <div class="biz-icon">${def.icon}</div>
+      <div class="biz-name">${def.name}</div>
+      <div class="biz-desc">${def.desc}</div>
+      <div class="biz-cost">${owned?'✓ Active':locked?`Req R${def.reqR+1}`:'Invest: '+cost}</div>
+      <div class="biz-yield">Active: ${def.yieldSt}💎/yr · Passive: ${Math.round(def.yieldSt*.25)}💎/yr</div>
+    </div>`;
+  }
+  h+=`</div>`;
+  h+=slab('Properties (needed for wives)');
+  for(const p of PROPERTIES){
+    const owned2=s.inv.properties.includes(p.key);
+    const locked2=p.stage>0&&s.realmIndex<p.stage*6;
+    const cost=p.costJ?`${p.costJ}✨`:p.costSt?`${p.costSt}💎`:`${p.costSi}🪙`;
+    h+=mkRow({icon:p.icon,title:p.name,sub:`${p.desc} · Wives: up to ${p.wifeCap}`,value:owned2?'Owned':locked2?'Locked':cost,cls:owned2?'jade':locked2?'dim':'',action:owned2||locked2?'':`data-buy-property="${p.key}"`});
+  }
+  h+=`</div>`;return h;
+}
+
+function renderInventory(s){
+  let h=hbar('INVENTORY & POWER','close-subscreen','var(--text2)');
+  h+=`<div class="scroll">`;
+  h+=slab('Resources');
+  h+=`<div class="sgrid">
+    <div class="scell"><div class="sval">${fmt(s.res.stones)}</div><div class="skey">💎 Stones</div></div>
+    <div class="scell"><div class="sval">${fmt(s.res.silver)}</div><div class="skey">🪙 Silver</div></div>
+    <div class="scell"><div class="sval">${s.res.merit}</div><div class="skey">🏅 Merit</div></div>
+    <div class="scell"><div class="sval">${s.res.insight}</div><div class="skey">📚 Insight</div></div>
+    <div class="scell"><div class="sval">${s.res.herbs}</div><div class="skey">🌿 Herbs</div></div>
+    <div class="scell"><div class="sval">${s.res.relics}</div><div class="skey">🏺 Relics</div></div>
+    ${s.res.immortalJade>0?`<div class="scell"><div class="sval">${s.res.immortalJade}</div><div class="skey">✨ Jade</div></div>`:''}
+    ${s.res.debt>0?`<div class="scell"><div class="sval" style="color:var(--scarlet2)">${s.res.debt}</div><div class="skey">💸 Debt</div></div>`:''}
+  </div>`;
+  h+=slab('Cultivation Manuals');
+  if(!s.inv.manuals.length)h+=notice('No manuals acquired yet.');
+  for(const mk of s.inv.manuals){const m=byKey(MANUALS,mk);if(!m)continue;h+=mkRow({icon:m.icon,title:m.name,sub:`${m.domain} · Speed +${m.speed} · Success +${m.success} · Stability +${m.stability}`,value:'Active'});}
+  h+=slab('Artifacts');
+  if(!s.inv.artifacts.length)h+=notice('No artifacts acquired yet.');
+  for(const ak of s.inv.artifacts)h+=mkRow({icon:'💎',title:ak.replace(/_/g,' '),sub:'Equipped artifact',value:'Active'});
+  h+=slab('Properties');
+  if(!s.inv.properties.length)h+=notice('No properties owned.');
+  for(const pk of s.inv.properties){const p=byKey(PROPERTIES,pk);if(p)h+=mkRow({icon:p.icon,title:p.name,sub:p.desc,value:'Owned',cls:'jade'});}
+  h+=slab('Power Rating');
+  h+=`<div class="sgrid">
+    <div class="scell"><div class="sval" style="color:var(--gold2)">${fmt(powerRating(s))}</div><div class="skey">⚡ Power</div></div>
+    <div class="scell"><div class="sval" style="color:var(--jade2)">${fmt(militaryPower(s))}</div><div class="skey">⚔️ Military</div></div>
+    <div class="scell"><div class="sval">${s.metrics.breakthroughs}</div><div class="skey">🌟 BTs</div></div>
+  </div>`;
+  h+=`</div>`;return h;
+}
+
+function renderBeastDetail(s){
+  let h=hbar('BEAST COMPANION','close-subscreen','var(--gold2)');
+  h+=`<div class="scroll">`;
+  if(!s.beast.activeKey){h+=notice('No beast companion yet.');return h+`</div>`;}
+  const b=byKey(BEASTS,s.beast.activeKey);
+  h+=`<div class="card warn" style="text-align:center;padding:20px"><div style="font-size:56px;margin-bottom:8px">${b.icon}</div><div style="font-size:18px;font-weight:700">${b.name}</div><div style="font-size:12px;color:var(--text2);margin-top:4px">${b.tier}</div></div>`;
+  h+=`<div class="sgrid">
+    <div class="scell"><div class="sval">${s.beast.loyalty}</div><div class="skey">Loyalty</div></div>
+    <div class="scell"><div class="sval">${s.beast.score}</div><div class="skey">Score</div></div>
+    <div class="scell"><div class="sval">+${b.cultivBonus}</div><div class="skey">Cultiv/yr</div></div>
+  </div>`;
+  h+=slab('Bonuses');
+  const bonStr=Object.entries(b.bonus).map(([k,v])=>`+${v} ${k}`).join(' · ');
+  h+=notice(bonStr);
+  h+=mkRow({icon:'🐾',title:'Feed Beast (20 loyalty)',sub:'Costs 60💎',action:'data-beast-feed="1"',value:'60💎'});
+  h+=mkRow({icon:'🔄',title:'Release Beast',sub:'Release for consequences, later get better one',action:'data-action="release-beast"',cls:'red',value:'Release'});
+  h+=`</div>`;return h;
+}
+
+function renderHatchScreen(s){
+  let h=hbar('BEAST HATCHING','close-subscreen','var(--gold2)');
+  h+=`<div class="scroll">`;
+  h+=notice('Your beast egg resonates with your qi. Choose a bloodline — permanent choice.','good');
+  const avail=BEASTS.filter(b=>s.realmIndex>=b.reqR);
+  const tier=s.beast.pendingTier||'common';
+  const filtered=tier==='legendary'?avail.filter(b=>b.tier==='Divine'||b.tier==='Immortal'):tier==='rare'?avail.filter(b=>b.tier==='Divine'||b.tier==='Spirit'):avail.filter(b=>b.tier==='Spirit');
+  const choices=(filtered.length>=3?filtered:avail).sort(()=>Math.random()-.5).slice(0,3);
+  for(const b of choices){const bonStr=Object.entries(b.bonus).map(([k,v])=>`+${v} ${k}`).join(', ');h+=mkRow({icon:b.icon,title:b.name,sub:`${b.tier} · ${bonStr} · Cultiv +${b.cultivBonus}/yr`,value:'CHOOSE',action:`data-hatch="${b.key}"`,cls:'jade'});}
+  // Also allow joining sect beast egg selection
+  if(s.sect.joined&&!s.beast.activeKey&&!s.beast.pendingEgg){
+    h+=slab('Sect Beast Gift (join bonus)');
+    h+=notice('As a new sect member you can choose one of 3 common beast eggs as a gift.');
+    const sectBeasts=BEASTS.filter(b=>b.reqR===0).sort(()=>Math.random()-.5).slice(0,3);
+    for(const b of sectBeasts){const bonStr=Object.entries(b.bonus).map(([k,v])=>`+${v} ${k}`).join(', ');h+=mkRow({icon:b.icon,title:`${b.name} (Common Egg)`,sub:bonStr,action:`data-hatch="${b.key}"`,cls:'jade'});}
+  }
+  h+=`</div>`;return h;
+}
+
+function renderElderChoice(s){
+  const sec=byKey(SECTS,s.sect.key);
+  let h=hbar('CHOOSE YOUR MASTER ELDER','close-subscreen','var(--gold2)');
+  h+=`<div class="scroll">`;
+  h+=notice('Selecting an elder as master grants personal cultivation teachings: +3 cultivation speed/yr and +1 comprehension/yr.','warn');
+  h+=slab('Available Elders');
+  for(const elder of (sec?.elders||[])){
+    const bond=s.sect.elderBondsMap?.[elder]||0;
+    h+=`<div class="npc-card">
+      <div class="npc-head">
+        <div class="npc-portrait">🧙</div>
+        <div class="npc-info"><div class="npc-name">${elder}</div><div class="npc-role">Sect Elder · Bond: ${bond}</div></div>
+      </div>
+      <button class="overlay-btn primary" data-choose-elder="${elder}" style="margin-top:8px;border-radius:var(--r)">Choose as Master</button>
+    </div>`;
+  }
+  h+=`</div>`;return h;
+}
+
+function renderMilitary(s){
+  let h=hbar('MILITARY COMMAND','close-subscreen','var(--scarlet2)');
+  h+=`<div class="scroll">`;
+  h+=`<div class="card"><div class="card-t">⚔️ Military Power: ${fmt(militaryPower(s))}</div><div class="card-s">Troops: ${totalTroops(s)} · Generals: ${totalGenerals(s)}<br>Casualty rate ~20% (reduced by elite troops and generals)</div></div>`;
+  h+=slab('Troop Tiers');
+  h+=`<div class="troop-grid">`;
+  for(const t of TROOP_TIERS){
+    const count=s.troops[t.key]||0;
+    const cost=t.costType==='silver'?`${t.cost}🪙`:`${t.cost}💎`;
+    const can=t.costType==='silver'?s.res.silver>=t.cost:s.res.stones>=t.cost;
+    h+=`<div class="troop-cell">
+      <div class="troop-ico">${t.icon}</div>
+      <div class="troop-n">${count}</div>
+      <div class="troop-lbl">${t.name}</div>
+      <div class="troop-pow">⚡${t.power}/ea</div>
+      <button style="margin-top:6px;padding:5px 8px;border-radius:6px;border:1px solid ${can?'var(--gold)':'var(--border2)'};background:var(--surface3);color:${can?'var(--gold2)':'var(--text3)'};font-size:10px;cursor:pointer" ${can?`data-recruit-troop="${t.key}"`:''}>${can?`Recruit (${cost})`:'Need '+cost}</button>
+    </div>`;
+  }
+  h+=`</div>`;
+  h+=slab('General Tiers');
+  h+=`<div class="troop-grid">`;
+  for(const g of GENERAL_TIERS){
+    const count=s.generals[g.key]||0;
+    const cost=g.costType==='silver'?`${g.cost}🪙`:`${g.cost}💎`;
+    const can=g.costType==='silver'?s.res.silver>=g.cost:s.res.stones>=g.cost;
+    h+=`<div class="troop-cell">
+      <div class="troop-ico">${g.icon}</div>
+      <div class="troop-n">${count}</div>
+      <div class="troop-lbl">${g.name}</div>
+      <div class="troop-pow">⚡${g.power}/ea</div>
+      <button style="margin-top:6px;padding:5px 8px;border-radius:6px;border:1px solid ${can?'var(--gold)':'var(--border2)'};background:var(--surface3);color:${can?'var(--gold2)':'var(--text3)'};font-size:10px;cursor:pointer" ${can?`data-recruit-general="${g.key}"`:''}>${can?`Hire (${cost})`:'Need '+cost}</button>
+    </div>`;
+  }
+  h+=`</div>`;
+  h+=`</div>`;return h;
+}
+
+function renderJobMenu(s){
+  let h=hbar('OCCUPATIONS','close-overlay','var(--azure2)');
+  h+=`<div class="overlay-scroll">`;
+  for(const job of MORTAL_JOBS){
+    const locked=s.realmIndex<job.reqR;const cur=s.currentJob===job.key;
+    h+=mkRow({icon:job.icon,title:job.name,sub:`${job.desc} · ${job.income} ${job.itype}/yr`,cls:cur?'gold':locked?'dim':'',action:locked?'':`data-set-job="${job.key}"`,value:cur?'Current':locked?`R${job.reqR}+`:'Select'});
+  }
+  h+=`<button class="overlay-btn" data-action="close-overlay">Close</button>`;
+  h+=`</div>`;
+  return`<div class="overlay"><div class="overlay-sheet">${h}</div></div>`;
+}
+
+function renderProfileOverlay(s){
+  const phy=getPhy(s);
+  let h=hbar('CULTIVATION PROFILE','close-overlay','var(--gold2)');
+  h+=`<div class="overlay-scroll">`;
+  h+=`<div style="text-align:center;padding:16px">
+    <div style="font-size:56px">${phy.icon}</div>
+    <div style="font-size:16px;font-weight:700;margin:8px 0 4px;font-family:var(--font-serif)">${phy.name}</div>
+    <div style="font-size:12px;color:var(--text2)">${phy.desc}</div>
+    <div style="margin-top:8px;font-size:11px;font-weight:700;color:var(--jade2)">×${phy.mult} Cultivation Speed</div>
+  </div>`;
+  h+=slab('Core Stats');
+  const icons={body:'💪',comprehension:'🧠',will:'🔥',charm:'💫',luck:'🍀',purity:'💎',karma:'☯️',ambition:'🚀',stability:'🛡',social:'🤝',business:'💰',reputation:'⭐',ruthlessness:'🗡',instability:'⚠️'};
+  h+=`<div class="sgrid">`;
+  for(const[k,v]of Object.entries(s.stats)){const col=v>=70?'var(--jade2)':v<=25?'var(--scarlet2)':'var(--text)';h+=`<div class="scell"><div class="sval" style="color:${col}">${v}</div><div class="skey">${icons[k]||'·'} ${k}</div></div>`;}
+  h+=`</div>`;
+  h+=slab('Life & Power');
+  h+=`<div class="sgrid">
+    <div class="scell"><div class="sval">${s.age}</div><div class="skey">Age</div></div>
+    <div class="scell"><div class="sval">${fmt(lifespanCap(s))}</div><div class="skey">Lifespan</div></div>
+    <div class="scell"><div class="sval" style="color:var(--gold2)">${fmt(powerRating(s))}</div><div class="skey">⚡ Power</div></div>
+  </div>`;
+  h+=`<button class="overlay-btn" data-action="close-overlay">Close</button>`;
+  h+=`</div>`;
+  return`<div class="overlay"><div class="overlay-sheet">${h}</div></div>`;
+}
+
+function renderHistoryOverlay(s){
+  let h=hbar('CHRONICLE','close-overlay','var(--azure2)');
+  h+=`<div class="overlay-scroll">`;
+  let lastY=-1;
+  for(const e of s.eventLog.slice(0,120)){
+    if(e.year!==lastY){h+=slab(`Year ${e.year} · Age ${e.age}`);lastY=e.year;}
+    h+=`<div style="padding:8px 14px;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:${e.tone==='bad'?'var(--scarlet2)':e.tone==='good'?'var(--jade2)':'var(--text)'}">${e.title}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">${(e.text||'').substring(0,100)}</div><div style="font-size:9px;font-weight:700;text-transform:uppercase;margin-top:3px;color:${e.tone==='bad'?'var(--scarlet2)':e.tone==='good'?'var(--jade2)':'var(--text3)'}">${e.category}</div></div>`;
+  }
+  h+=`<button class="overlay-btn" data-action="close-overlay">Close</button>`;
+  h+=`</div>`;
+  return`<div class="overlay"><div class="overlay-sheet">${h}</div></div>`;
+}
+
+function renderBreakthroughOverlay(s,data){
+  const r=getRealm(s);
+  return`<div class="overlay"><div class="overlay-sheet" style="padding-bottom:20px">
+    <div class="bt-overlay">
+      <div class="bt-emoji">${r.emoji}</div>
+      <div class="bt-title" style="color:${r.color}">⚡ BREAKTHROUGH ⚡</div>
+      <div class="bt-realm" style="color:${r.color}">${data.realm}</div>
+      <div style="font-size:12px;color:var(--text2)">${r.tier} Tier · Realm ${data.realmIdx+1}/${REALMS.length}</div>
+    </div>
+    ${data.lifespanGain>0?`<div class="notice good" style="margin:0 12px">+${fmt(data.lifespanGain)} years of life unlocked</div>`:''}
+    <div class="notice ${data.realmIdx>=10?'good':''}" style="margin:8px 12px">${data.realmIdx>=13?'Supreme ascendancy reached. The Dao bows.':data.realmIdx>=10?'Immortal Jade, divine territory, and celestial beasts now accessible.':data.realmIdx>=6?'Spirit realm, divine beast market unlock.':'Better sect ranks, improved markets and manuals unlock.'}</div>
+    <button class="overlay-btn primary" data-action="close-breakthrough">Continue the Path ›</button>
+  </div></div>`;
+}
+
+function renderChoiceOverlay(s,ev){
+  return`<div class="overlay"><div class="overlay-sheet">
+    ${hbar('YEAR EVENT','noop')}
+    <div class="overlay-scroll">
+      ${slab(ev.title)}
+      <div class="card"><div class="card-s" style="line-height:1.65">${ev.text}</div></div>
+      ${slab('Choose Your Response')}
+      ${ev.opts.map(o=>`<button class="choice-opt" data-choose="${o.key}"><span class="choice-ico">${o.emoji}</span><span class="choice-lbl">${o.label}</span></button>`).join('')}
+    </div>
+  </div></div>`;
+}
+
+function renderWindfallOverlay(s){
+  const wf=s.pendingWindfall;if(!wf)return'';
+  return`<div class="overlay"><div class="overlay-sheet">
+    ${hbar('FORTUITOUS ENCOUNTER','close-overlay','var(--gold2)')}
+    <div class="overlay-scroll">
+      <div class="card warn" style="margin-top:10px"><div class="card-t">✨ ${wf.name}</div><div class="card-s">${wf.desc}</div></div>
+      <div class="notice good" style="margin-top:6px">${[wf.stones?`+${wf.stones}💎`:'',wf.silver?`+${wf.silver}🪙`:'',wf.insight?`+${wf.insight} insight`:'',wf.special?`Special: ${wf.special}`:''].filter(Boolean).join(' · ')}</div>
+    </div>
+    <button class="overlay-btn primary" data-action="claim-windfall">✨ Claim Windfall</button>
+    <button class="overlay-btn" data-action="close-overlay">Skip</button>
+  </div></div>`;
+}
+
+function renderAuctionOverlay(s){
+  const a=s.auction;if(!a.active||!a.lot)return'';
+  const lot=a.lot;const can=s.res.stones>=a.playerBid;const winning=!a.oppActive||a.playerBid>a.oppBid;
+  return`<div class="overlay"><div class="overlay-sheet">
+    ${hbar('BIDDING HALL','close-auction','var(--gold2)')}
+    <div class="overlay-scroll">
+      <div class="card" style="margin:10px 12px"><div class="card-t">${lot.icon} ${lot.name}</div><div class="card-s">${lot.desc}</div></div>
+      <div style="padding:12px 12px 0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div><div style="font-size:10px;color:var(--text3)">Your Bid</div><div style="font-size:20px;font-weight:800;color:var(--jade2)">${a.playerBid}💎</div></div>
+          ${a.oppActive?`<div style="text-align:right"><div style="font-size:10px;color:var(--text3)">Opponent</div><div style="font-size:20px;font-weight:800;color:var(--scarlet2)">${a.oppBid}💎</div></div>`:''}
+        </div>
+        <div style="font-size:11px;color:${winning?'var(--jade2)':'var(--scarlet2)'};margin-bottom:8px">${winning?'✓ Leading':'⚠ Behind'} · Have ${s.res.stones}💎</div>
+        ${a.msg?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-style:italic">${a.msg}</div>`:''}
+        <div class="bid-row">
+          <button class="bid-inc" data-bid-raise="10">+10</button>
+          <button class="bid-inc" data-bid-raise="50">+50</button>
+          <button class="bid-inc" data-bid-raise="100">+100</button>
+          <button class="bid-inc" data-bid-raise="500">+500</button>
+        </div>
+        <button class="bid-commit" ${!can?'disabled':''} data-action="commit-bid">${can?'🔨 Commit Bid':'Insufficient Stones'}</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// SETUP SCREENS
+// ═══════════════════════════════════════════════════
+const FAMILY_ICONS=['🏡','🎭','💰','⚔️','📜','🏯','🗡'];
+
+function renderSetupScreen(s){
+  let h=`<div class="setup-wrap"><div class="splash"><div style="font-size:52px;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(192,160,64,.55))">☯️</div><div class="splash-logo">DAO ASCENSION</div><div class="splash-sub">A Xianxia Life Simulator</div></div><div class="setup-scroll">`;
+  const phy=byKey(PHYSIQUES,s.selectedPhysique);
+
+  if(s.setupStep===0){
+    h+=slab('I. Choose Your Background');
+    for(const o of ORIGINS){
+      const stats=Object.entries(o.stats).map(([k,v])=>`${v>0?'+':''}${v} ${k}`).join(', ');
+      // Human icons for family background
+      h+=mkRow({icon:o.icon,title:o.name,sub:`${o.desc} · ${stats}`,cls:s.selectedOrigin===o.key?'gold':'',action:`data-origin="${o.key}"`});
+    }
+  } else if(s.setupStep===1){
+    h+=slab('II. Heaven\'s Allotment — Your Physique');
+    h+=`<div style="text-align:center;padding:16px">
+      <div style="font-size:56px">${phy.icon}</div>
+      <div style="font-size:18px;font-weight:700;margin:8px 0;font-family:var(--font-serif)">${phy.name}</div>
+      <div style="font-size:11px;color:var(--text2)">${phy.desc}</div>
+      <div style="margin-top:8px;font-size:13px;font-weight:700;color:var(--jade2)">×${phy.mult} Cultivation Speed</div>
+    </div>`;
+    h+=slab('III. Choose Temperament');
+    for(const t of TEMPERAMENTS){
+      const stats=Object.entries(t.stats).map(([k,v])=>`${v>0?'+':''}${v} ${k}`).join(', ');
+      h+=mkRow({icon:t.icon,title:t.name,sub:`${t.desc} · ${stats}`,cls:s.selectedTemperament===t.key?'gold':'',action:`data-temperament="${t.key}"`});
+    }
+  } else if(s.setupStep===2){
+    h+=slab('IV. Choose Your Path');
+    h+=mkRow({icon:'⛩',title:'Join a Sect',sub:'Stipends, manuals, and political risk. Elder master selection.',cls:s.selectedPath==='sect'?'gold':'',action:'data-path="sect"'});
+    h+=mkRow({icon:'🌿',title:'Wandering Cultivator',sub:'Freedom and danger. No obligations.',cls:s.selectedPath==='wanderer'?'gold':'',action:'data-path="wanderer"'});
+  } else if(s.setupStep===3){
+    h+=slab('V. Choose Your Sect');
+    for(const sec of SECTS){
+      const stats=Object.entries(sec.stats).map(([k,v])=>`${v>0?'+':''}${v} ${k}`).join(', ');
+      h+=mkRow({icon:sec.icon,title:sec.name,sub:`${sec.doctrine} · ${sec.tier} Tier · ${sec.focus} · ${stats}`,cls:s.selectedSect===sec.key?'gold':'',action:`data-sect="${sec.key}"`});
+    }
+  }
+  h+=`</div>`;
+  const canAdvance=(s.setupStep===0&&s.selectedOrigin)||(s.setupStep===1&&s.selectedTemperament)||(s.setupStep===2&&s.selectedPath)||(s.setupStep===3&&s.selectedSect);
+  h+=`<div class="setup-cta"><button class="cta-btn" ${!canAdvance?'disabled':''} data-action="setup-next">
+    ${s.setupStep===3||(s.setupStep===2&&s.selectedPath==='wanderer')?'Begin This Life ›':'Continue →'}
+  </button></div></div>`;
+  return h;
+}
+
+function renderDeadScreen(s){
+  const r=getRealm(s);
+  return`<div class="dead-wrap">
+    <div style="font-size:56px;margin-bottom:14px">${s.stats.instability>=95?'💥':'☠️'}</div>
+    <div style="font-size:22px;font-weight:800;font-family:var(--font-serif);margin-bottom:6px">Life Concluded</div>
+    <div style="font-size:14px;margin-bottom:4px;color:${r.color}">${r.name} · Age ${s.age}</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:20px">${s.stats.instability>=95?'Qi deviation — meridians collapsed.':'Lifespan exhausted — the Dao reclaims all.'}</div>
+    <div class="card" style="width:100%;max-width:340px;margin-bottom:20px">
+      <div class="card-t" style="margin-bottom:10px">Legacy</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left">
+        <div><div style="font-size:10px;color:var(--text3)">Breakthroughs</div><div style="font-weight:700">${s.metrics.breakthroughs}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Marriages</div><div style="font-weight:700">${s.metrics.marriages}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Auctions Won</div><div style="font-weight:700">${s.metrics.auctions}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Years Lived</div><div style="font-weight:700">${s.year}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Peak Power</div><div style="font-weight:700">${fmt(powerRating(s))}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Heirs</div><div style="font-weight:700">${s.family.heirs}</div></div>
+      </div>
+    </div>
+    <button class="cta-btn" style="width:100%;max-width:300px" data-action="restart">🔄 Reincarnate</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════════════
+let S=createState();
+
+function renderGame(s){
+  const TABS=[
+    {key:'chronicle',ico:'☯',lbl:'Life'},
+    {key:'path',     ico:'✦',lbl:'Path'},
+    {key:'world',    ico:'⌘',lbl:'World'},
+    {key:'sect',     ico:'⛩',lbl:'Sect'},
+    {key:'bonds',    ico:'∞',lbl:'House'},
+  ];
+  const tabFn={chronicle:renderChronicleTab,path:renderPathTab,world:renderWorldTab,sect:renderSectTab,bonds:renderBondsTab};
+  const subFn={
+    marketplace:renderMarketplace,
+    auction:renderAuction,
+    business:renderBusiness,
+    inventory:renderInventory,
+    'beast-detail':renderBeastDetail,
+    'beast-hatch':renderHatchScreen,
+    'choose-elder':renderElderChoice,
+    military:renderMilitary,
+  };
+
+  let mainHtml='';
+  if(s.subscreen&&subFn[s.subscreen]){mainHtml=`<div style="display:flex;flex-direction:column;height:100%">${subFn[s.subscreen](s)}</div>`;}
+  else{mainHtml=`<div style="display:flex;flex-direction:column;height:100%">${(tabFn[s.activeTab]||renderChronicleTab)(s)}</div>`;}
+
+  const canBt=s.minorLevel>=9;
+  let full=`<div style="display:flex;flex-direction:column;height:100dvh">
+    ${mainHtml}
+    <div class="bottom">
+      <button class="adv-btn ${canBt?'ready':''}" data-action="advance-year">${canBt?'🌟 Breakthrough Ready — Advance Year':'Age Up ›'}</button>
+      <nav class="nav">${TABS.map(t=>`<button class="nav-btn ${s.activeTab===t.key&&!s.subscreen?'on':''}" data-tab="${t.key}"><span class="ico">${t.ico}</span><span>${t.lbl}</span></button>`).join('')}</nav>
+    </div>
+  </div>`;
+
+  // Overlays
+  if(s.overlay==='profile')full+=renderProfileOverlay(s);
+  if(s.overlay==='history')full+=renderHistoryOverlay(s);
+  if(s.overlay==='breakthrough'&&s.overlayData)full+=renderBreakthroughOverlay(s,s.overlayData);
+  if(s.overlay==='choice'&&s.overlayData)full+=renderChoiceOverlay(s,s.overlayData);
+  if(s.overlay==='windfall'&&s.pendingWindfall)full+=renderWindfallOverlay(s);
+  if(s.overlay==='auction')full+=renderAuctionOverlay(s);
+  if(s.overlay==='jobmenu')full+=renderJobMenu(s);
+  if(s.overlay==='hatch')full+=`<div class="overlay"><div class="overlay-sheet">${renderHatchScreen(s).replace('class="scroll"','class="overlay-scroll"')}</div></div>`;
+  return full;
+}
+
+function render(){
+  const root=document.getElementById('root');
+  if(S.screen==='setup')root.innerHTML=renderSetupScreen(S);
+  else if(S.screen==='game')root.innerHTML=renderGame(S);
+  else if(S.screen==='dead')root.innerHTML=renderDeadScreen(S);
+  bindEvents();
+}
+
+// ═══════════════════════════════════════════════════
+// EVENT BINDING
+// ═══════════════════════════════════════════════════
+function bindEvents(){
+  const root=document.getElementById('root');
+  root.onclick=e=>{
+    const t=e.target.closest('[data-action],[data-origin],[data-temperament],[data-path],[data-sect],[data-select-action],[data-open],[data-tab],[data-buy-item],[data-launch-biz],[data-buy-property],[data-travel],[data-contest],[data-start-auction],[data-bid-raise],[data-hatch],[data-choose],[data-gift-rel],[data-propose-rel],[data-dao-bond],[data-challenge-rel],[data-talk-rel],[data-romance-rel],[data-outing-rel],[data-join-sect],[data-set-job],[data-sect-action],[data-elder-talk],[data-elder-gift],[data-choose-elder],[data-recruit-troop],[data-recruit-general],[data-beast-feed]');
+    if(!t)return;e.stopPropagation();
+
+    // Elder interactions
+    if(t.dataset.elderTalk){talkElder(S,t.dataset.elderTalk);render();return;}
+    if(t.dataset.elderGift){giftElder(S,t.dataset.elderGift);render();return;}
+    if(t.dataset.chooseElder){chooseElder(S,t.dataset.chooseElder);render();return;}
+
+    // Troop recruitment
+    if(t.dataset.recruitTroop){
+      const tDef=byKey(TROOP_TIERS,t.dataset.recruitTroop);if(!tDef)return;
+      const qty=10;const total=tDef.cost*qty;
+      if(tDef.costType==='silver'){if(S.res.silver<total){toast(`Need ${total}🪙`,'bad');return;}S.res.silver-=total;}
+      else{if(S.res.stones<total){toast(`Need ${total}💎`,'bad');return;}S.res.stones-=total;}
+      S.troops[t.dataset.recruitTroop]=(S.troops[t.dataset.recruitTroop]||0)+qty;
+      toast(`⚔️ Recruited ${qty} ${tDef.name}`,'good');render();return;
+    }
+    if(t.dataset.recruitGeneral){
+      const gDef=byKey(GENERAL_TIERS,t.dataset.recruitGeneral);if(!gDef)return;
+      if(gDef.costType==='silver'){if(S.res.silver<gDef.cost){toast(`Need ${gDef.cost}🪙`,'bad');return;}S.res.silver-=gDef.cost;}
+      else{if(S.res.stones<gDef.cost){toast(`Need ${gDef.cost}💎`,'bad');return;}S.res.stones-=gDef.cost;}
+      S.generals[t.dataset.recruitGeneral]=(S.generals[t.dataset.recruitGeneral]||0)+1;
+      toast(`🌟 Hired ${gDef.name}`,'good');render();return;
+    }
+    if(t.dataset.beastFeed){if(S.res.stones>=60){S.res.stones-=60;S.beast.loyalty=clamp(S.beast.loyalty+20,0,100);toast('🐾 Beast fed — Loyalty +20','good');}else toast('Need 60💎','bad');render();return;}
+
+    // NPC relation actions
+    if(t.dataset.talkRel){talkNPC(S,t.dataset.talkRel);render();return;}
+    if(t.dataset.giftRel){giftNPC(S,t.dataset.giftRel);render();return;}
+    if(t.dataset.outingRel){outingNPC(S,t.dataset.outingRel);render();return;}
+    if(t.dataset.proposeRel){proposeToNPC(S,t.dataset.proposeRel);render();return;}
+    if(t.dataset.daoBond){daoBondNPC(S,t.dataset.daoBond);render();return;}
+    if(t.dataset.challengeRel){challengeNPC(S,t.dataset.challengeRel);render();return;}
+    if(t.dataset.romanceRel){romanceNPC(S,t.dataset.romanceRel);render();return;}
+
+    const action=t.dataset.action;
+    if(action){
+      if(action==='advance-year'){
+        if(S.settings.ageConfirm&&!confirm('Advance one year?'))return;
+        advanceYear(S);
+      }
+      else if(action==='attempt-breakthrough')attemptBreakthrough(S);
+      else if(action==='open-profile')S.overlay='profile';
+      else if(action==='open-history')S.overlay='history';
+      else if(action==='close-overlay'){S.overlay=null;S.overlayData=null;}
+      else if(action==='close-breakthrough'){S.overlay=null;S.overlayData=null;}
+      else if(action==='close-subscreen')S.subscreen=null;
+      else if(action==='close-auction')S.overlay=null;
+      else if(action==='noop')return;
+      else if(action==='setup-next'){
+        if(S.setupStep===0&&S.selectedOrigin)S.setupStep=1;
+        else if(S.setupStep===1&&S.selectedTemperament)S.setupStep=2;
+        else if(S.setupStep===2){if(S.selectedPath==='wanderer')startGame(S);else if(S.selectedPath==='sect')S.setupStep=3;}
+        else if(S.setupStep===3&&S.selectedSect){
+          startGame(S);
+          // Offer beast egg on sect join
+          if(!S.beast.activeKey){S.beast.pendingEgg=true;S.beast.pendingTier='common';S.overlay='hatch';toast('🎁 Sect gift: choose a beast companion!','great',4000);}
+        }
+      }
+      else if(action==='commit-bid')commitBid(S);
+      else if(action==='claim-windfall')claimWindfall(S);
+      else if(action==='activate-windfall')activateWindfall(S);
+      else if(action==='open-hatch')S.overlay='hatch';
+      else if(action==='open-jobmenu')S.overlay='jobmenu';
+      else if(action==='restart'){S=createState();S.screen='setup';}
+      else if(action==='release-beast'){
+        if(S.beast.activeKey){
+          const b=byKey(BEASTS,S.beast.activeKey);
+          toast(`${b.icon} ${b.name} released. Karma noted.`,'bad',3000);
+          S.stats.karma=clamp(S.stats.karma-3,-100,100);
+          S.beast.activeKey=null;S.beast.loyalty=0;S.beast.score=0;
+          writeLog(S,'Beast Released',`You released ${b.name}. The bond severed.`,'Beast','bad');
+        }
+      }
+    }
+
+    if(t.dataset.origin){S.selectedOrigin=t.dataset.origin;}
+    if(t.dataset.temperament){S.selectedTemperament=t.dataset.temperament;}
+    if(t.dataset.path){S.selectedPath=t.dataset.path;}
+    if(t.dataset.sect){S.selectedSect=t.dataset.sect;}
+    if(t.dataset.tab){S.activeTab=t.dataset.tab;S.subscreen=null;}
+    if(t.dataset.open){S.subscreen=t.dataset.open;}
+    if(t.dataset.selectAction)S.selectedAction=t.dataset.selectAction;
+    if(t.dataset.buyItem)buyShopItem(S,t.dataset.buyItem);
+    if(t.dataset.launchBiz)launchBusiness(S,t.dataset.launchBiz);
+    if(t.dataset.buyProperty){
+      const p=byKey(PROPERTIES,t.dataset.buyProperty);
+      if(p&&!S.inv.properties.includes(p.key)){
+        const canJ=p.costJ&&S.res.immortalJade>=p.costJ;
+        const canSt=p.costSt&&S.res.stones>=p.costSt;
+        const canSi=p.costSi&&S.res.silver>=p.costSi;
+        if(canJ){S.res.immortalJade-=p.costJ;S.inv.properties.push(p.key);toast(`🏠 ${p.name} acquired!`,'good');}
+        else if(canSt){S.res.stones-=p.costSt;S.inv.properties.push(p.key);toast(`🏠 ${p.name} acquired!`,'good');}
+        else if(canSi){S.res.silver-=p.costSi;S.inv.properties.push(p.key);toast(`🏠 ${p.name} acquired!`,'good');}
+        else toast('Insufficient funds','bad');
+      }
+    }
+    if(t.dataset.travel){
+      const l=byKey(LOCATIONS,t.dataset.travel);
+      if(l&&l.stage>0&&S.realmIndex<l.stage*6)toast(`Need Realm ${l.stage*6+1}+ for ${l.name}`,'bad');
+      else if(l){if(S.locationKey!==t.dataset.travel){writeLog(S,'Relocation',`Moved to ${l.name}.`,'World','neutral');toast(`📍 ${l.name}`,'',2000);}S.locationKey=t.dataset.travel;}
+    }
+    if(t.dataset.contest){contestTerritory(S,t.dataset.contest);}
+    if(t.dataset.startAuction){startAuction(S,t.dataset.startAuction);}
+    if(t.dataset.bidRaise){raiseBid(S,parseInt(t.dataset.bidRaise));}
+    if(t.dataset.hatch){hatchBeast(S,t.dataset.hatch);}
+    if(t.dataset.choose){resolveYearChoice(S,t.dataset.choose);}
+    if(t.dataset.joinSect){
+      const sec=byKey(SECTS,t.dataset.joinSect);
+      if(sec&&!S.sect.joined){
+        S.sect.joined=true;S.sect.key=t.dataset.joinSect;S.sect.rankKey='layman';
+        if(sec.stats)Object.entries(sec.stats).forEach(([k,v])=>{if(k in S.stats)S.stats[k]=clamp(S.stats[k]+Math.round(v*.5),0,100);});
+        const sm=MANUALS.find(m=>m.reqR===0&&!S.inv.manuals.includes(m.key));if(sm)S.inv.manuals.push(sm.key);
+        // Beast egg gift on joining
+        if(!S.beast.activeKey){S.beast.pendingEgg=true;S.beast.pendingTier='common';S.overlay='hatch';}
+        writeLog(S,'Sect Joined',`Now a Layman Disciple of ${sec.name}.`,'Sect','good');
+        toast(`⛩ Joined ${sec.name}!`,'great',3500);
+      }
+    }
+    if(t.dataset.setJob){S.currentJob=t.dataset.setJob;S.overlay=null;toast(`💼 ${byKey(MORTAL_JOBS,t.dataset.setJob)?.name}`,'',2000);}
+    if(t.dataset.sectAction){
+      const sa=t.dataset.sectAction;
+      if(sa==='assign'){S.sect.favor=clamp(S.sect.favor+8,0,100);S.res.merit+=15;writeLog(S,'Mission Done','Merit +15, Favor +8.','Sect','good');toast('⛩ Merit +15, Favor +8','good');}
+      else if(sa==='donate'){if(S.res.stones>=100){S.res.stones-=100;S.res.merit+=15;S.sect.favor=clamp(S.sect.favor+8,0,100);writeLog(S,'Donated','','Sect','good');toast('💎 Donated — Merit +15','good');}else toast('Need 100💎','bad');}
+      else if(sa==='scheme'){if(Math.random()<.55){S.res.merit+=25;writeLog(S,'Scheme Succeeded','Merit +25.','Sect','good');toast('😈 Scheme — Merit +25','good');}else{S.sect.rivalryPressure=clamp(S.sect.rivalryPressure+15,0,100);writeLog(S,'Scheme Backfired','','Sect','bad');toast('⚠️ Scheme backfired!','bad');}}
+    }
+    render();
+  };
+}
+
+// Boot
+render();
+</script>
+</body>
+</html>
+
