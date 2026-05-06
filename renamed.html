@@ -5038,14 +5038,30 @@ function renderUniqueEventOverlay(s, ev){
   </div>`;
 }
 
-// ─── BIND EVENTS — single clean definition ───────────────────
+// ─── BIND EVENTS (FIXED) ──────────────────────────────
 bindEvents = function(){
-  const root=document.getElementById('root');
-  root.onclick=e=>{
-    const t=e.target.closest('[data-action],[data-origin],[data-temperament],[data-path],[data-sect],[data-select-action],[data-open],[data-tab],[data-buy-item],[data-buy-artifact],[data-launch-biz],[data-buy-property],[data-travel],[data-contest-enemy],[data-start-auction],[data-bid-raise],[data-hatch],[data-choose],[data-gift-rel],[data-propose],[data-dao-comp],[data-challenge],[data-talk-rel],[data-toggle],[data-open-rel],[data-save-slot],[data-load-slot],[data-delete-slot],[data-join-sect],[data-set-job],[data-sect-action],[data-commit-crime],[data-refine-pill],[data-forge-item],[data-buy-beast-egg],[data-beast-action],[data-dynasty-action],[data-immortal-action],[data-seek-immortal-manual],[data-pick-save-slot],[data-send-disciple],[data-military-buy],[data-gamble],[data-gamble-dice],[data-self-auction],[data-exchange],[data-resolve-unique],[data-set-gender],[data-scheme-target],[data-sect-gift],[data-sect-talk],[data-sect-romance],[data-sect-dual],[data-challenge-position],[data-kill-npc],[data-auction-next-turn],[data-npc-action],[data-contest]');
-    if(!t)return;
+  const root = document.getElementById('root');
+  root.onclick = e => {
+    const t = e.target.closest('[data-action],[data-origin],[data-temperament],[data-path],[data-sect],[data-select-action],[data-open],[data-tab],[data-buy-item],[data-launch-biz],[data-load-slot],[data-join-sect],[data-set-job]');
+    if(!t) return;
     e.stopPropagation();
-
+    
+    const action = t.dataset.action;
+    if(action === 'advance-year') { advanceYear(S); checkTutorial(S); }
+    else if(action === 'attempt-breakthrough') { attemptBreakthrough(S); }
+    else if(action === 'close-overlay') { S.overlay = null; S.overlayData = null; }
+    
+    if(t.dataset.tab) { S.activeTab = t.dataset.tab; S.subscreen = null; }
+    if(t.dataset.open) { S.subscreen = t.dataset.open; }
+    if(t.dataset.selectAction) { S.selectedAction = t.dataset.selectAction; }
+    if(t.dataset.buyItem) { buyShopItem(S, t.dataset.buyItem); }
+    if(t.dataset.loadSlot) { const ld = loadStateFromSlot(parseInt(t.dataset.loadSlot)); if(ld) { S = ld; S.overlay = null; } }
+    if(t.dataset.joinSect) { S.selectedSect = t.dataset.joinSect; }
+    if(t.dataset.setJob) { S.currentJob = t.dataset.setJob; S.overlay = null; }
+    
+    render();
+  };
+};
     // Gender
     if(t.dataset.setGender){S.gender=t.dataset.setGender;render();return;}
 
